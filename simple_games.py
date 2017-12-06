@@ -1,15 +1,42 @@
 import pygame
 from PyScene import scene
 from PyScene.widgets import Button, Text, Textbox
+from PyScene.tool import Point
 from random import choice
 
 class Quit:
     def event(self, event):
         if event.type == pygame.QUIT:
-            scene.Screen.running = False
+            scene.Screen.set_scene = 'QuitScene'
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                scene.Screen.running = False
+                scene.Screen.set_scene = 'QuitScene'
+
+class QuitScene(scene.Scene):
+    last_scene = None
+
+    def __init__(self):
+        scene.Scene.__init__(self)
+        midx, midy = tuple(map(int, (Point(*scene.Screen.size) / 2).tup()))
+        Text(self, "Do you really want to leave ?", midx, midy - 50, scene.Font.basic, 'mediumorchid1')
+        Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
+        Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
+        self.rect = pygame.Rect(midx - 175, midy - 80, 355, 120)
+
+    def push(self, button, pydata):
+        if pydata:
+            scene.Screen.running = False
+        else:
+            scene.Screen.set_scene = QuitScene.last_scene
+
+    def blit(self, surface):
+        if QuitScene.last_scene:
+            scene.Screen.scenes[QuitScene.last_scene].blit(surface)
+            scene.Screen.scenes[QuitScene.last_scene]._blit(surface)
+        else:
+            surface.fill((40,0,0))
+
+        surface.fill(pygame.Color('mediumorchid4'), self.rect)
 
 class Intro(Quit, scene.Scene):
     def __init__(self):
@@ -28,6 +55,7 @@ class Intro(Quit, scene.Scene):
         self.last_scene = None
 
     def entrance(self):
+        QuitScene.last_scene = 'Intro'
         if self.last_scene:
             del scene.Screen.scenes[self.last_scene]
 
@@ -69,6 +97,9 @@ class TicTacToe(Quit, scene.Scene):
                             4:((1,7), (3,5), (0,8), (2,6)), 5:((2,8), (3,4)),
                             6:((0,3), (4,2), (7,8)), 7:((1,4), (6,8)),
                             8:((6,7),(0,4),(2,5)) }
+
+    def entrance(self):
+        QuitScene.last_scene = "TicTacToe"
 
     def push(self, button, pydata):
         if self.board[pydata] == '':
@@ -153,6 +184,9 @@ class MasterMind(Quit, scene.Scene):
         self.picker = [pygame.Rect(150, i * 30 + 180, 40, 20) for i in range(8)]
         self.outcome = Text(self, "", mid, 550, scene.Font.basic, 'green')
         self.push_newgame(None, None)
+
+    def entrance(self):
+        QuitScene.last_scene = 'MasterMind'
 
     def push_back(self, button, pydata):
         scene.Screen.set_scene = 'Intro'
@@ -289,6 +323,9 @@ class FloodIt(Quit, scene.Scene):
         self.turn_text = Text(self, 'Turn: 0', mid, 560, scene.Font.basic, 'wheat4')
         self.push_newgame(None, None)
 
+    def entrance(self):
+        QuitScene.last_scene = 'FloodIt'
+
     def push_back(self, button, pydata):
         scene.Screen.set_scene = 'Intro'
 
@@ -345,6 +382,7 @@ def main():
     scene.Font.basic = pygame.font.Font(None, 36)
 
     scene.Screen.scenes['Intro'] = Intro()
+    scene.Screen.scenes['QuitScene'] = QuitScene()
 
     scene.Screen.loop('Intro', 30)
     pygame.quit()
