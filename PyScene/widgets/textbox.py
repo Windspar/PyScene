@@ -16,10 +16,13 @@ class Carrot:
 class Textbox(Widget):
     def __init__(self, parent, rect, font=None, color='white', callback=None, image='blue', style='plain'):
         Widget.__init__(self, parent, rect, 'Textbox', None)
-        self.text = Text(None, "", *self._rect.center, font, color)
+        self.text = Text(None, "Textbox", *self._rect.center, font, color)
+        self._alpha(0.3)
         self._buffer = []
         self.callback = callback
         self._carrot = Carrot(self.text._font, self.text._rect, color)
+        self._ghost = 'Textbox'
+        self._ghost_alpha = 0.3
 
         if isinstance(image, (str, tuple, list)):
             self.make_button(image, style)
@@ -29,6 +32,14 @@ class Textbox(Widget):
         if parent:
             parent.bind_event(pygame.KEYDOWN, self._key + 'keydown__', self.event_keydown)
             parent.bind_blit(self._key + 'blit__', self.blit)
+
+    # alpha 0 - 255 , expensive operation
+    def set_ghost(self, text, alpha):
+        self._ghost_alpha = alpha / 255.0
+        self._ghost = text
+        if len(self._buffer) == 0:
+            self.text.set_text(self._ghost)
+            self._alpha(self._ghost_alpha)
 
     def make_button(self, color, style):
         self._image = pygame.Surface(self._rect.size)
@@ -101,11 +112,26 @@ class Textbox(Widget):
 
             self.update_text()
 
+    # expensive operation
+    def _alpha(self, pyfloat):
+        rect = self.text._info.image.get_rect()
+        for x in range(rect.w):
+            for y in range(rect.h):
+                color = self.text._info.image.get_at((x, y))
+                color.a = int(color.a * pyfloat)
+                self.text._info.image.set_at((x,y), color)
+
     def event_mousebuttondown(self, event, key, pydata):
         if event.button == 1:
             if self._hover and self.enable:
+                if len(self._buffer) == 0:
+                    self.text.set_text('')
                 self._toggle = True
                 pygame.key.set_repeat(80,80)
             else:
                 self._toggle = False
+                if len(self._buffer) == 0:
+                    self.text.set_text(self._ghost)
+                    self._alpha(self._ghost_alpha)
+
                 pygame.key.set_repeat()

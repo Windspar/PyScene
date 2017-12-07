@@ -1,3 +1,7 @@
+date 12-7-2017
+-- widgets.textbox.py --
+added ghost text
+
 date 12-6-2017
 -- tool.gradient.py --
 added apply_surface function
