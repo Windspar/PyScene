@@ -1,0 +1,12 @@
+date 12-6-2017
+-- tool.gradient.py --
+added apply_surface function
+update widgets.text.Text now uses apply_surface
+
+-- simple_games.py --
+fix intro exit bug
+added Memory game
+added Puzzle game
+
+-- simple_games.py --
+added class QuitScene

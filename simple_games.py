@@ -1,8 +1,8 @@
 import pygame
 from PyScene import scene
 from PyScene.widgets import Button, Text, Textbox
-from PyScene.tool import Point
-from random import choice
+from PyScene.tool import Point, Vector
+from random import choice, shuffle
 
 class Quit:
     def event(self, event):
@@ -46,18 +46,29 @@ class Intro(Quit, scene.Scene):
         text = Text(self, 'TicTacToe', mid, 200, scene.Font.basic, 'wheat4')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('TicTacToe', TicTacToe))
+
         text = Text(self, 'MasterMind', mid, 250, scene.Font.basic, 'wheat4')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('MasterMind', MasterMind))
+
         text = Text(self, 'FloodIt', mid, 300, scene.Font.basic, 'wheat4')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('FloodIt', FloodIt))
+
+        text = Text(self, 'Memory', mid, 350, scene.Font.basic, 'wheat4')
+        text.set_hilight('burlywood')
+        text.set_callback(self.start_game, ('Memory', Memory))
+
+        text = Text(self, 'Puzzle', mid, 400, scene.Font.basic, 'wheat4')
+        text.set_hilight('burlywood')
+        text.set_callback(self.start_game, ('Puzzle', Puzzle))
         self.last_scene = None
 
     def entrance(self):
         QuitScene.last_scene = 'Intro'
         if self.last_scene:
             del scene.Screen.scenes[self.last_scene]
+            self.last_scene = None
 
     def start_game(self, text, pydata):
         self.last_scene = pydata[0]
@@ -177,7 +188,7 @@ class MasterMind(Quit, scene.Scene):
         mid = scene.Screen.size[0] / 2
         Text(self, 'MasterMind', mid, 20, scene.Font.basic, 'green')
         Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
-        Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'orange')
+        Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
         Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, None, 'green')
         self.colors = ('yellow', 'red', 'blue', 'white', 'wheat4', 'orange', 'green', 'purple')
         self.colors = tuple(map(pygame.Color, self.colors))
@@ -375,6 +386,197 @@ class FloodIt(Quit, scene.Scene):
                         for item in self.board:
                             for dot in item:
                                 dot.ignore_me = False
+
+class Card:
+    def __init__(self, rect, item):
+        self.item = item
+        self.image = self.draw()
+        self.rect = pygame.Rect(rect)
+        self.show = False
+
+    def draw(self):
+        surface = pygame.Surface((30,30))
+        surface.fill((0,0,0))
+        surface.set_colorkey((0,0,0))
+        color = pygame.Color(['deepskyblue1','firebrick1','limegreen'][self.item % 3])
+        rect = pygame.Rect(0,0,30,30)
+
+        if self.item in [0,1,2]:
+            surface.fill(color, rect)
+        elif self.item in [3,4,5]:
+            colors = [color, pygame.Color(*map(int, (Vector(*color[:3]) * 0.75).tup()) )]
+            for i in range(3):
+                for j in range(3):
+                    irect = pygame.Rect(i * 10, j * 10, 9,9)
+                    surface.fill(colors[(i + j) % 2], irect)
+        elif self.item in [6,7,8]:
+            pygame.draw.circle(surface, color, rect.center, 14)
+        elif self.item in [9,10,11]:
+            x, y = rect.center
+            pointlist = [(p[0] + x, p[1] + y) for p in [(15,-30),(30,30),(0,0)]]
+            pygame.draw.polygon(surface, color, pointlist)
+        elif self.item in [12,13,14]:
+            pygame.draw.line(surface, color, (0, 10), (30, 10) , 3)
+            pygame.draw.line(surface, color, (0, 20), (30, 20) , 3)
+        elif self.item in [15,16,17]:
+            irect = pygame.Rect(0,5,30,20)
+            surface.fill(color, irect)
+        elif self.item in [18,19,20]:
+            color2 = pygame.Color( *map(int, (Vector(*color[:3]) * 0.75).tup()) )
+            pygame.draw.circle(surface, color, (11, 12), 10)
+            pygame.draw.circle(surface, color2, (19, 18), 10)
+        elif self.item in [21,22,23]:
+            pygame.draw.line(surface, color, (15,0), (15,30), 3)
+            pygame.draw.line(surface, color, (0,15), (30,15), 3)
+        elif self.item in [24,25,26]:
+            pygame.draw.line(surface, color, (0,0), (30,30), 3)
+            pygame.draw.line(surface, color, (0,30), (30,0), 3)
+        elif self.item in [27,28,29]:
+            pygame.draw.circle(surface, color, rect.center, 14)
+            pygame.draw.circle(surface, (0,0,0), rect.center, 6)
+        elif self.item == 30:
+            irect = pygame.Rect(0,0,15,15)
+            surface.fill(color, irect)
+            color2 = pygame.Color(*map(int, (Vector(*color[:3]) * 0.75).tup()))
+            irect.move_ip(15,15)
+            surface.fill(color2, irect)
+
+        return surface
+
+class Memory(Quit, scene.Scene):
+    def __init__(self):
+        scene.Scene.__init__(self)
+        mid = scene.Screen.size[0] / 2
+        Text(self, 'Memory', mid, 20, scene.Font.basic, 'mediumorchid1')
+        Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
+        Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
+        self.move_text = Text(self, 'Moves: 0', mid, 100, scene.Font.basic, 'mediumorchid1')
+
+        self.push_newgame(None, None)
+
+    def push_newgame(self, button, pydata):
+        self.cards = []
+        self.move_text.set_text('Moves: 0')
+        objects = list(range(30)) + list(range(30))
+        for across in range(10):
+            self.cards.append([])
+            for down in range(6):
+                pick = choice(objects)
+                objects.remove(pick)
+                x = across * 55 + 120
+                y = down * 55 + 150
+                self.cards[across].append(Card((x,y,50,50),pick))
+
+        self.last_pick = []
+        self.move_count = 0
+
+    def entrance(self):
+        QuitScene.last_scene = 'Memory'
+
+    def push_back(self, button, pydata):
+        scene.Screen.set_scene = 'Intro'
+
+    def blit(self, surface):
+        surface.fill((40,0,40))
+        for item in self.cards:
+            for card in item:
+                if card.show:
+                    pos = card.rect.topleft
+                    pos = pos[0] + 10, pos[1] + 10
+                    surface.blit(card.image, pos)
+                else:
+                    surface.fill(pygame.Color('snow'), card.rect)
+
+    def event(self, event):
+        Quit.event(self, event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                mx, my = event.pos
+                if 120 <= mx < 670 and 150 <= my < 480:
+                    x = int((mx - 120) / 55)
+                    y = int((my - 150) / 55)
+                    #print(x, y)
+                    if self.cards[x][y].show == True:
+                        return
+
+                    self.cards[x][y].show = True
+                    if len(self.last_pick) == 0:
+                        self.last_pick = [(x, y)]
+                    elif len(self.last_pick) == 1:
+                        cx, cy = self.last_pick[0]
+                        if self.cards[x][y].item == self.cards[cx][cy].item:
+                            self.last_pick = []
+                        else:
+                            self.last_pick.append((x,y))
+                            self.move_count += 1
+                            self.move_text.set_text('Moves: ' + str(self.move_count))
+                    else:
+                        for cx,cy in self.last_pick:
+                            self.cards[cx][cy].show = False
+                        self.last_pick = [(x, y)]
+
+class PuzzleBlock:
+    def __init__(self, number):
+        self.number = number
+        self.image = pygame.Surface((65, 65))
+        self.image.fill((pygame.Color('aquamarine')))
+        surface = scene.Font.basic.render(str(number + 1), 1, (0,0,0))
+        rect = surface.get_rect()
+        rect.center = self.image.get_rect().center
+        self.image.blit(surface, rect)
+
+class Puzzle(Quit, scene.Scene):
+    def __init__(self):
+        scene.Scene.__init__(self)
+        mid = scene.Screen.size[0] / 2
+        Text(self, 'Puzzle', mid, 20, scene.Font.basic, 'aquamarine')
+        Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
+        Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')
+        self.board = [PuzzleBlock(i) for i in range(15)] + [None]
+        self.push_newgame(None, None)
+
+    def entrance(self):
+        QuitScene.last_scene = 'Puzzle'
+
+    def push_newgame(self, button, pydata):
+        shuffle(self.board)
+
+    def push_back(self, button, pydata):
+        scene.Screen.set_scene = 'Intro'
+
+    def blit(self, surface):
+        surface.fill(pygame.Color('aquamarine4'))
+        for enum, item in enumerate(self.board):
+            if item:
+                y = int(enum / 4) * 70 + 150
+                x = int(enum - int(enum / 4) * 4) * 70 + 260
+                surface.blit(item.image, (x, y))
+
+    def event(self, event):
+        Quit.event(self, event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                mx, my = event.pos
+                if 260 <= mx <= 540 and 150 <= my < 430:
+                    pos = int((mx - 260) / 70) + int((my - 150) / 70) * 4
+                    if self.board[pos] is None:
+                        return
+
+                    def setboard(npos):
+                        if self.board[npos] is None:
+                            self.board[npos] = self.board[pos]
+                            self.board[pos] = None
+
+                    if pos + 4 < 16:
+                        setboard(pos + 4)
+                    if pos - 4 >= 0:
+                        setboard(pos - 4)
+                    if pos + 1 < 16:
+                        setboard(pos + 1)
+                    if pos - 1 >= 0:
+                        setboard(pos - 1)
 
 def main():
     scene.Screen.center()

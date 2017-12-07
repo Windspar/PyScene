@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from widgets.widget import Widget
 from tool.point import Point
+from tool.gradient import apply_surface
 
 # Text are static. Can be transform in Text Click.
 # Text can have a hilight color.
@@ -78,15 +79,7 @@ class Text(Widget):
         self._do_anchor()
 
         if isinstance(info.color, pygame.Surface):
-            gsurface = pygame.transform.scale(info.color, self._rect.size)
-            for i in range(self._rect.size[0]):
-                for j in range(self._rect.size[1]):
-                    color = surface.get_at((i,j))
-                    gcolor = gsurface.get_at((i,j))
-                    gcolor.a = color.a
-                    gsurface.set_at((i,j), gcolor)
-
-            info.image = gsurface
+            info.image = apply_surface(surface, info.color)
         else:
             info.image = surface
 
