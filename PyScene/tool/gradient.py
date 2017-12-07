@@ -5,7 +5,7 @@ from tool.point import Vector
 def apply_surface(source, gradient):
     rect = source.get_rect()
     surface = pygame.transform.scale(gradient, rect.size)
-    surface.convert_alpha()
+    surface = surface.convert_alpha()
 
     for i in range(rect.size[0]):
         for j in range(rect.size[1]):
