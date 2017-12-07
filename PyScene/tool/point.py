@@ -7,7 +7,15 @@ class Point:
         self.y = y
 
     def tup(self):
+        return self.x, self.y
+
+    def tup_int(self):
         return int(self.x), int(self.y)
+
+    def cast_int(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
+        return self
 
     # overload handle Vector, Point, tuple, list, single number
     def overload(self, op, point):
@@ -44,6 +52,15 @@ class Vector:
 
     def tup(self):
         return self.x, self.y, self.z
+
+    def tup_int(self):
+        return int(self.x), int(self.y), int(self.z)
+
+    def cast_int(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
+        self.z = int(self.z)
+        return self
 
     # overload handle Vector, Point, tuple, list, single number
     def overload(self, op, vector):

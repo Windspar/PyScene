@@ -31,10 +31,12 @@ def create(horizontal, colors, length=255):
         if isinstance(color, str):
             vcolor = pygame.Color(color)
             vectors.append(Vector(vcolor.r, vcolor.g, vcolor.b))
-        if isinstance(color, (tuple, list)):
-            vectors.append(Vector(*color))
+        elif isinstance(color, pygame.Color):
+            vectors.append(Vector(color.r, color.g, color.b))
+        elif isinstance(color, (tuple, list)):
+            vectors.append(Vector(*color[:3]).cast_int())
         elif isinstance(color, Vector):
-            vectors.append(color)
+            vectors.append(color.cast_int())
 
     # balance the length for there an even number
     offset = len(vectors) - 1

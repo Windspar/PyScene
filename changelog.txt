@@ -1,4 +1,11 @@
 date 12-7-2017
+-- tool.point.py --
+Point and Vectors now have tup_int(), cast_int()
+
+-- tool.gradient.py --
+now handles pygame.Color
+trims the fat off of list and tuples
+
 -- widgets.textbox.py --
 added ghost text
 
