@@ -1,4 +1,7 @@
 date 12-8-2017
+BUG has been fix
+work around remove
+
 -- simple_games.py --
 BUG was introduced at line 423.
 updated some images for memory game.

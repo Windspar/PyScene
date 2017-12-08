@@ -420,8 +420,6 @@ class Card:
                     irect = pygame.Rect(i * 10, j * 10, 9,9)
                     surface.fill(colors[(i + j) % 2], irect)
         elif self.item in [9,10,11,12]:
-            # TODO bug. Why isinstance doesn't recognize it as a Vector.
-            # Vector isinstance(bg, Vector) in gradient and Vector.
             colors_list = ['darkolivegreen1','chocolate','darkgoldenrod','coral']
             fg = pygame.Color(colors_list[self.item % 4])
             bg = Vector(fg) * 0.5
@@ -600,7 +598,7 @@ class Puzzle(Quit, scene.Scene):
 def main():
     scene.Screen.center()
     scene.Screen.init('Simple Games', (800, 600))
-    scene.Font.basic = pygame.font.Font(None, 36)    
+    scene.Font.basic = pygame.font.Font(None, 36)
 
     scene.Screen.scenes['Intro'] = Intro()
     scene.Screen.scenes['QuitScene'] = QuitScene()

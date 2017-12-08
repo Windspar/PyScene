@@ -76,11 +76,8 @@ class Vector:
                 self.y = x.y
                 self.z = x.z
             else:
-                # Currently working around bug.
+                print(repr(type(x)), repr(type(self)))
                 print('Error', x)
-                self.x = x.x
-                self.y = x.y
-                self.z = x.z
         else:
             self.x = x
             self.y = y
@@ -126,10 +123,3 @@ class Vector:
 
     def __repr__(self):
         return "Vector({0}, {1}, {2})".format(self.x, self.y, self.z)
-
-if __name__ == '__main__':
-    colors_list = ['darkolivegreen1','chocolate','darkgoldenrod']
-    fg = Color(colors_list[1])
-    bg = Vector(fg) * 0.52
-    print(bg)
-    print(Vector(bg).cast())
