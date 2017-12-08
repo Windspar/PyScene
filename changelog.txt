@@ -1,8 +1,13 @@
 date 12-7-2017
+-- widgets.buttons.py --
+Has two more button styles. (simple , normal, box)
+
 -- tool.point.py --
-Point and Vectors now have tup_int(), cast_int()
+Point and Vectors now have tup_cast(), cast()
+Point and Vectors now handle more constructor types
 
 -- tool.gradient.py --
+fix gradient apply_surface alpha bug
 now handles pygame.Color
 trims the fat off of list and tuples
 

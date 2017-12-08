@@ -19,8 +19,13 @@ class Intro(Quit, scene.Scene):
         scene.Scene.__init__(self)
         mid = scene.Screen.size[0] / 2
         # text is auto center
-        Text(self, 'Welcome To PyScene', mid, 20, scene.Font.basic, 'blue')
+        Text(self, 'Welcome To PyScene', mid, 20, scene.Font.basic, 'dodgerblue')
         Button(self, "Push Me", (10,70,100,30), self.push)
+
+        Text(self, "Button Styles", 60, 150, scene.Font.small, 'dodgerblue')
+        Button(self, "Simple", (10,170,100,30), None, None, 'mistyrose') # simple is default
+        Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
+        Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
 
         colorful_surface = vertical(('blue', 'red', 'wheat4', 'green', 'burlywood'))
         Text(self, 'Colorful Text', mid, 400, scene.Font.basic, colorful_surface)

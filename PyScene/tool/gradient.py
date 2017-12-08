@@ -28,15 +28,10 @@ def vertical(colors, length=255):
 def create(horizontal, colors, length=255):
     vectors = []
     for color in colors:
-        if isinstance(color, str):
-            vcolor = pygame.Color(color)
-            vectors.append(Vector(vcolor.r, vcolor.g, vcolor.b))
-        elif isinstance(color, pygame.Color):
-            vectors.append(Vector(color.r, color.g, color.b))
-        elif isinstance(color, (tuple, list)):
-            vectors.append(Vector(*color[:3]).cast_int())
-        elif isinstance(color, Vector):
-            vectors.append(color.cast_int())
+        if isinstance(color, Vector):
+            vectors.append(color.cast())
+        else:
+            vectors.append(Vector(color).cast())
 
     # balance the length for there an even number
     offset = len(vectors) - 1
@@ -60,9 +55,9 @@ def create(horizontal, colors, length=255):
         for d in range(depth):
             if gap + 1 < length:
                 if horizontal:
-                    surface.set_at((0, d + gap), pygame.Color(*map(int, color.tup())))
+                    surface.set_at((0, d + gap), pygame.Color(*color.tup_cast()))
                 else:
-                    surface.set_at((d + gap, 0), pygame.Color(*map(int, color.tup())))
+                    surface.set_at((d + gap, 0), pygame.Color(*color.tup_cast()))
                 color -= blend
 
         gap += depth

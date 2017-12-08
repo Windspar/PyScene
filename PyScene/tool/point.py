@@ -1,20 +1,32 @@
+from pygame import Color
 import operator
 import math
 
 class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    # handles (x, y), tuple, list, Point, Vector
+    def __init__(self, x, y=None):
+        if y is None:
+            if isinstance(x, (Point, Vector)):
+                self.x = x.x
+                self.y = x.y
+            else:
+                self.x = x[0]
+                self.y = x[1]
+        else:
+            self.x = x
+            self.y = y
 
     def tup(self):
         return self.x, self.y
 
-    def tup_int(self):
-        return int(self.x), int(self.y)
+    # handle basic type int, float, str
+    def tup_cast(self, cast=int):
+        return cast(self.x), cast(self.y)
 
-    def cast_int(self):
-        self.x = int(self.x)
-        self.y = int(self.y)
+    # handle basic type int, float, str
+    def cast(self, cast=int):
+        self.x = cast(self.x)
+        self.y = cast(self.y)
         return self
 
     # overload handle Vector, Point, tuple, list, single number
@@ -45,21 +57,41 @@ def direction(angle):
     return Point(math.cos(degree), math.sin(degree))
 
 class Vector:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    # handles (x, y, z), tuple, list, pygame.Color, Vector
+    def __init__(self, x, y=None, z=None):
+        if y is None:
+            if isinstance(x, str):
+                color = Color(x)
+                self.x = color.r
+                self.y = color.g
+                self.z = color.b
+            elif isinstance(x, (tuple, list)):
+                self.x, self.y, self.z = x[:3]
+            elif isinstance(x, Color):
+                self.x = x.r
+                self.y = x.g
+                self.z = x.b
+            elif isinstance(x, Vector):
+                self.x = x.x
+                self.y = x.y
+                self.z = x.z
+        else:
+            self.x = x
+            self.y = y
+            self.z = z
 
     def tup(self):
         return self.x, self.y, self.z
 
-    def tup_int(self):
-        return int(self.x), int(self.y), int(self.z)
+    # handle basic type int, float, str
+    def tup_cast(self, cast=int):
+        return cast(self.x), cast(self.y), cast(self.z)
 
-    def cast_int(self):
-        self.x = int(self.x)
-        self.y = int(self.y)
-        self.z = int(self.z)
+    # handle basic type int, float, str
+    def cast(self, cast=int):
+        self.x = cast(self.x)
+        self.y = cast(self.y)
+        self.z = cast(self.z)
         return self
 
     # overload handle Vector, Point, tuple, list, single number

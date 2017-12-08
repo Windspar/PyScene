@@ -14,7 +14,7 @@ class Button(Widget):
         self.callback = callback
         self.pydata = pydata
 
-        if isinstance(image, (str, tuple, list)):
+        if isinstance(image, (str, tuple, list, Vector)):
             self._make_button(image, style)
         else:
             self._image = image
@@ -32,60 +32,72 @@ class Button(Widget):
 
     def simple_button(self, color):
         dull, bright, dark, light = self.make_color(color)
-        _, bdis, ddis, _ = self.make_color('gray')
+        _, gray_bright, gray_dark, _ = self.make_color('gray')
         self._image = WidgetImage(
             vertical((dark, bright, bright, dark)),
             vertical((dark + light, bright + dull, bright + dull, dark + light)),
             vertical((bright, dark, dark, bright)),
-            vertical((ddis, bdis, bdis, ddis)))
+            vertical((gray_dark, gray_bright, gray_bright, gray_dark)))
 
         self._image.scale(self._rect.size)
 
-    def normal_mix(self, dark, bright, dimmer, fill):
-        w, h = (Point(*self._rect.size) / 10).tup()
-        top = pygame.transform.scale(horizontal((bright + dimmer, bright)), (self._rect.w + 1, h))
-        left = pygame.transform.scale(vertical((bright + dimmer, bright)), (w, self._rect.h + 1))
-        right = pygame.transform.scale(vertical((bright, dark)), (w, self._rect.h + 1))
-        bottom = pygame.transform.scale(horizontal((bright, dark)), (self._rect.w + 1, h))
-        surface = pygame.Surface(self._rect.size)
-        surface.fill(tuple(map(int, fill.tup())))
-        surface.blit(top,(0,0))
-        surface.blit(left, (0,0))
-        surface.blit(bottom, (0, self._rect.h - h))
-        surface.blit(right, (self._rect.w - w, 0))
+    def box_button(self, color):
+        bright, dark, lighten = self.make_color(color)[1:]
+        gray_bright = self.make_color('gray60')[1]
+        rect = pygame.Rect(0,0,*self._rect.size)
+        rect.inflate_ip(-6, -6)
 
-        return surface
+        def overlay(fg, rect):
+            surface = pygame.Surface(self._rect.size)
+            surface = surface.convert_alpha()
+            surface.fill((*fg.tup(), 80))
+            pygame.draw.rect(surface, fg.tup(), rect, 1)
+            return surface
+
+        self._image = WidgetImage(
+            overlay(bright, rect),
+            overlay(bright + lighten, rect),
+            overlay(dark, rect),
+            overlay(gray_bright, rect))
 
     def normal_button(self, color):
-        dimmer, bright, dark, light = self.make_color(color)
-        dimmer_off, off, dark_off, _ = self.make_color('gray')
+        dimmer, bright, dark, lighten = self.make_color(color)
+        gray_bright, gray_dark = self.make_color('gray60')[1:3]
+
+        def overlay(bg, fg, back):
+            front = horizontal((fg, bg), self._rect.w - 6)
+            back = pygame.transform.scale(back, self._rect.size)
+            w, h = self._rect.size
+            rect = pygame.Rect(3,3,w - 6, h - 6)
+            front = pygame.transform.scale(front, rect.size)
+            back.blit(front, rect)
+            rect.inflate_ip(2,2)
+            pygame.draw.rect(back, (0,0,0), rect, 1)
+            return back
+
+        back = horizontal((dark, bright), self._rect.w)
+        gray_back = horizontal((gray_dark, gray_bright), self._rect.w)
         self._image = WidgetImage(
-            self.normal_mix(dark - light, bright - dimmer, dimmer, bright - dimmer),
-            self.normal_mix(dark, bright, dimmer, bright),
-            self.normal_mix(bright - dimmer, dark - light, light, bright - dimmer),
-            self.normal_mix(dark_off, off, dimmer_off, off)
-        )
+            overlay(dark, bright, back),
+            overlay(dark + lighten, bright + dimmer, back),
+            overlay(bright, dark, back),
+            overlay(gray_dark, gray_bright, gray_back))
 
     def make_color(self, color):
-        if isinstance(color, str):
-            pycolor = pygame.Color(color)
-        elif isinstance(color, (tuple, list)):
-            pycolor = pygame.Color(*color)
-        elif isinstance(color, Vector):
-            pycolor = pygame.Color(*color.tup())
-
-        color = Vector(pycolor.r, pycolor.g, pycolor.b)
-        dimmer = color * 0.25
+        color = Vector(color).cast()
+        dimmer = (color * 0.20).cast()
         bright = color - dimmer
-        dark = bright * 0.5
-        light = dark * 0.25
-        return dimmer, bright, dark, light
+        dark = (bright * 0.5).cast()
+        lighten = (dark * 0.20).cast()
+        return dimmer, bright, dark, lighten
 
     def _make_button(self, color, style):
         if style == 'simple':
             self.simple_button(color)
         elif style == 'normal':
             self.normal_button(color)
+        elif style == 'box':
+            self.box_button(color)
 
     def blit(self, surface):
         if self.enable:
