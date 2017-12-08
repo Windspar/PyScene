@@ -1,3 +1,11 @@
+date 12-8-2017
+-- simple_games.py --
+BUG was introduced at line 423.
+updated some images for memory game.
+
+-- point.py --
+work around for current bug at line 423
+
 date 12-7-2017
 -- widgets.buttons.py --
 Has two more button styles. (simple , normal, box)

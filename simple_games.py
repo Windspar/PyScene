@@ -1,7 +1,7 @@
 import pygame
 from PyScene import scene
 from PyScene.widgets import Button, Text, Textbox
-from PyScene.tool import Point, Vector
+from PyScene.tool import Point, Vector, gradient
 from random import choice, shuffle
 
 class Quit:
@@ -396,50 +396,69 @@ class Card:
 
     def draw(self):
         surface = pygame.Surface((30,30))
-        surface.fill((0,0,0))
-        surface.set_colorkey((0,0,0))
-        color = pygame.Color(['deepskyblue1','firebrick1','limegreen'][self.item % 3])
+        surface = surface.convert_alpha()
+        surface.fill((0,0,0,0))
         rect = pygame.Rect(0,0,30,30)
 
-        if self.item in [0,1,2]:
-            surface.fill(color, rect)
-        elif self.item in [3,4,5]:
-            colors = [color, pygame.Color(*map(int, (Vector(*color[:3]) * 0.75).tup()) )]
+        if self.item in [0,1,2,3]:
+            colors_list = ['deepskyblue1','firebrick1','limegreen','lightgoldenrod']
+            foreground = pygame.Color(colors_list[self.item % 4])
+            surface.fill(foreground, rect)
+            r = pygame.Rect(5,5,5,5)
+            pygame.draw.rect(surface, (0,0,0), r)
+            r.move_ip(15, 0)
+            pygame.draw.rect(surface, (0,0,0), r)
+            r = pygame.Rect(11,15,8,8)
+            pygame.draw.rect(surface, (0,0,0), r)
+        elif self.item in [4,5,6,7,8]:
+            colors_list = ['dodgerblue','indianred','mediumseagreen','mediumpurple','khaki']
+            fg = pygame.Color(colors_list[self.item % 5])
+            bg = (Vector(fg) * 0.6).tup_cast()
+            colors = [fg, bg]
             for i in range(3):
                 for j in range(3):
                     irect = pygame.Rect(i * 10, j * 10, 9,9)
                     surface.fill(colors[(i + j) % 2], irect)
-        elif self.item in [6,7,8]:
-            pygame.draw.circle(surface, color, rect.center, 14)
-        elif self.item in [9,10,11]:
-            x, y = rect.center
-            pointlist = [(p[0] + x, p[1] + y) for p in [(15,-30),(30,30),(0,0)]]
-            pygame.draw.polygon(surface, color, pointlist)
-        elif self.item in [12,13,14]:
-            pygame.draw.line(surface, color, (0, 10), (30, 10) , 3)
-            pygame.draw.line(surface, color, (0, 20), (30, 20) , 3)
-        elif self.item in [15,16,17]:
-            irect = pygame.Rect(0,5,30,20)
-            surface.fill(color, irect)
+        elif self.item in [9,10,11,12]:
+            # TODO bug. Why isinstance doesn't recognize it as a Vector.
+            # Vector isinstance(bg, Vector) in gradient and Vector.
+            colors_list = ['darkolivegreen1','chocolate','darkgoldenrod','coral']
+            fg = pygame.Color(colors_list[self.item % 4])
+            bg = Vector(fg) * 0.5
+            grad = gradient.horizontal((fg, bg), 30)
+            letter = scene.Font.basic.render('ABCD'[self.item % 4], 1, (255,255,255))
+            arect = letter.get_rect()
+            arect.center = rect.center
+            surface.blit(gradient.apply_surface(letter, grad), arect)
+        elif self.item in [13,14,15,16,17]:
+            colors_list = ['cornflowerblue','bisque3','limegreen','coral','honeydew']
+            left = pygame.Color(colors_list[self.item % 5])
+            right = (Vector(left) * 0.6).tup_cast()
+            surface.fill(left, pygame.Rect(0,0,15,15))
+            surface.fill(right, pygame.Rect(15,0,15,15))
+            surface.fill(right, pygame.Rect(0,15,15,15))
+            surface.fill(left, pygame.Rect(15,15,15,15))
         elif self.item in [18,19,20]:
-            color2 = pygame.Color( *map(int, (Vector(*color[:3]) * 0.75).tup()) )
-            pygame.draw.circle(surface, color, (11, 12), 10)
-            pygame.draw.circle(surface, color2, (19, 18), 10)
+            colors_list = ['deepskyblue1','firebrick1','limegreen']
+            foreground = pygame.Color(colors_list[self.item % 3])
+            background = (Vector(foreground) * 0.6).tup_cast()
+            pygame.draw.circle(surface, foreground, (11, 12), 10)
+            pygame.draw.circle(surface, background, (19, 18), 10)
         elif self.item in [21,22,23]:
-            pygame.draw.line(surface, color, (15,0), (15,30), 3)
-            pygame.draw.line(surface, color, (0,15), (30,15), 3)
+            colors_list = ['deepskyblue1','firebrick1','limegreen']
+            foreground = pygame.Color(colors_list[self.item % 3])
+            pygame.draw.line(surface, foreground, (15,0), (15,30), 3)
+            pygame.draw.line(surface, foreground, (0,15), (30,15), 3)
         elif self.item in [24,25,26]:
-            pygame.draw.line(surface, color, (0,0), (30,30), 3)
-            pygame.draw.line(surface, color, (0,30), (30,0), 3)
+            colors_list = ['deepskyblue1','firebrick1','limegreen']
+            foreground = pygame.Color(colors_list[self.item % 3])
+            pygame.draw.line(surface, foreground, (0,0), (30,30), 3)
+            pygame.draw.line(surface, foreground, (0,30), (30,0), 3)
         elif self.item in [27,28,29]:
-            pygame.draw.circle(surface, color, rect.center, 14)
+            colors_list = ['deepskyblue1','firebrick1','limegreen']
+            foreground = pygame.Color(colors_list[self.item % 3])
+            pygame.draw.circle(surface, foreground, rect.center, 14)
             pygame.draw.circle(surface, (0,0,0), rect.center, 6)
-        elif self.item == 30:
-            irect = pygame.Rect(0,0,15,15)
-            surface.fill(color, irect)
-            color2 = pygame.Color(*map(int, (Vector(*color[:3]) * 0.75).tup()))
-            irect.move_ip(15,15)
-            surface.fill(color2, irect)
 
         return surface
 
@@ -581,7 +600,7 @@ class Puzzle(Quit, scene.Scene):
 def main():
     scene.Screen.center()
     scene.Screen.init('Simple Games', (800, 600))
-    scene.Font.basic = pygame.font.Font(None, 36)
+    scene.Font.basic = pygame.font.Font(None, 36)    
 
     scene.Screen.scenes['Intro'] = Intro()
     scene.Screen.scenes['QuitScene'] = QuitScene()
