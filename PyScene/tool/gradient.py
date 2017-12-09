@@ -17,15 +17,15 @@ def apply_surface(source, gradient):
     return surface
 
 # pack colors top to bottom
-def horizontal(colors, length=255):
-    return create(True, colors, length)
+def horizontal(colors, length=255, alpha=255):
+    return create(True, colors, length, alpha)
 
 # pack colors left to right
-def vertical(colors, length=255):
-    return create(False, colors, length)
+def vertical(colors, length=255, alpha=255):
+    return create(False, colors, length, alpha)
 
 # colors can be list or tuples of (list, tuple, Vector).
-def create(horizontal, colors, length=255):
+def create(horizontal, colors, length=255, alpha=255):
     vectors = []
     for color in colors:
         if isinstance(color, Vector):
@@ -40,9 +40,10 @@ def create(horizontal, colors, length=255):
 
     if horizontal:
         surface = pygame.Surface((1, length))
+        surface = surface.convert_alpha()
     else:
         surface = pygame.Surface((length, 1))
-
+        surface = surface.convert_alpha()
 
     depth = int(length / offset)
     gap = 0
@@ -55,9 +56,9 @@ def create(horizontal, colors, length=255):
         for d in range(depth):
             if gap + 1 < length:
                 if horizontal:
-                    surface.set_at((0, d + gap), pygame.Color(*color.tup_cast()))
+                    surface.set_at((0, d + gap), pygame.Color(*color.tup_cast(), alpha))
                 else:
-                    surface.set_at((d + gap, 0), pygame.Color(*color.tup_cast()))
+                    surface.set_at((d + gap, 0), pygame.Color(*color.tup_cast(), alpha))
                 color -= blend
 
         gap += depth

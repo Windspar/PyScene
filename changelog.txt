@@ -1,3 +1,14 @@
+date 12-9-217
+-- intro.py --
+separated colors by color and gray/grey 
+
+-- gradient.py --
+added alpha support
+
+-- button.py --
+rebuilt style, allows you to have more custom style
+added ToggleButton
+
 date 12-8-2017
 Move group and pid from Widget to Scene.
 

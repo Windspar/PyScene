@@ -32,12 +32,13 @@ class Intro(Quit, scene.Scene):
         colorful_surface = horizontal(('blue', 'red', 'wheat4', 'green', 'burlywood'))
         Text(self, 'Colorful Text', mid, 440, scene.Font.basic, colorful_surface)
 
-
         self.groups = [
             ("Group Example",
             Text(self, "Text Group Example", mid, 100, scene.Font.basic, 'wheat4')),
             ("Colors",
-            Text(self, "Built In Colors", mid, 150, scene.Font.basic, 'wheat4'))
+            Text(self, "Built In Colors", mid, 150, scene.Font.basic, 'wheat4')),
+            ("GrayColors",
+            Text(self, "Built In Colors GrayScale", mid, 200, scene.Font.basic, 'wheat4'))
             ]
         for data, text in self.groups:
             text.set_hilight('burlywood')
@@ -97,14 +98,19 @@ class PushMe(Quit, scene.Scene):
         surface.fill((30,0,0))
 
 class Colors(Quit, scene.Scene):
-    def __init__(self):
+    def __init__(self, grayscale=False):
         scene.Scene.__init__(self)
         mid = scene.Screen.size[0] / 2
         self.page = 1
         self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, scene.Font.basic, 'snow')
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
         self.back.text.set_color('dodgerblue')
-        self.keys = list(pygame.color.THECOLORS.keys())
+        if grayscale:
+            self.keys = [key for key in list(pygame.color.THECOLORS.keys())
+                if key[:4] in ['gray', 'grey']]
+        else:
+            self.keys = [key for key in list(pygame.color.THECOLORS.keys())
+                if key[:4] not in ['gray', 'grey']]
         self.keys.sort()
         self.keys_group = []
         for i in range(100):
@@ -118,6 +124,8 @@ class Colors(Quit, scene.Scene):
         nextp = Button(self, 'Next', (mid + 50, 560, 100, 30), self.next_page, None, 'snow')
         nextp.text.set_color('dodgerblue')
 
+        self.max_page = int(len(self.keys) / 100) + 1
+
     def update_colors(self):
         self.rects = []
         keys = self.keys[100 * (self.page - 1): 100 * self.page]
@@ -127,7 +135,6 @@ class Colors(Quit, scene.Scene):
             color =  pygame.Color(key)
             if color.r < 30 and color.g < 30 and color.b < 30:
                 self.rects.append(self.keys_group[enum]._rect)
-
 
         if len(keys) < 100:
             for n in range(enum + 1, 100):
@@ -140,7 +147,7 @@ class Colors(Quit, scene.Scene):
             self.intro.set_text('Built In Colors ' + str(self.page))
 
     def next_page(self, button, pydata):
-        if self.page < 7:
+        if self.page < self.max_page:
             self.page += 1
             self.update_colors()
             self.intro.set_text('Built In Colors ' + str(self.page))
@@ -162,6 +169,7 @@ def main():
     # store my scenes
     scene.Screen.scenes['Intro'] = Intro()
     scene.Screen.scenes['Colors'] = Colors()
+    scene.Screen.scenes['GrayColors'] = Colors(True)
     scene.Screen.scenes['Push Me'] = PushMe()
     scene.Screen.scenes['Group Example'] = GroupExample()
 
