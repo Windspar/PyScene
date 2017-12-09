@@ -9,6 +9,8 @@ class Bindings:
 	def __init__(self):
 		self.events = {}
 		self.blits = {}
+		self.group = {}
+		self.pid = 0
 
 # Scene flipping
 class Scene:
@@ -24,6 +26,14 @@ class Scene:
 		pass
 	def event(self, event):
 		pass
+
+	def _bind_group(self, group, key, data):
+		self._bindings.group[group] = self._bindings.group.get(group, {'focus': None})
+		self._bindings.group[group][key] = data
+
+	def _get_pid(self):
+		self._bindings.pid += 1
+		return self._bindings.pid
 
 	def _event(self, event):
 		if self._bindings.events.get(event.type, None):

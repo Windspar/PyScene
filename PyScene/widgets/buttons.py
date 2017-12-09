@@ -9,8 +9,8 @@ from widgets.text import Text
 
 class Button(Widget):
     # text = PyScene.widgets.text.Text or string
-    def __init__(self, parent, text, rect, callback, pydata=None, image='blue', group=None, style='simple'):
-        Widget.__init__(self, parent, rect, 'Button', group)
+    def __init__(self, parent, text, rect, callback, pydata=None, image='blue', group=None, style='simple', allow_bindings=True):
+        Widget.__init__(self, parent, rect, 'Button', group, allow_bindings)
         self.callback = callback
         self.pydata = pydata
 
@@ -24,9 +24,9 @@ class Button(Widget):
             self.text = text
             self.text.set_position(self._rect.center)
         else:
-            self.text = Text(None, text, *self._rect.center)
+            self.text = Text(parent, text, *self._rect.center, allow_bindings=False)
 
-        if parent:
+        if allow_bindings:
             parent.bind_event(pygame.MOUSEBUTTONUP, self._key + 'up__', self.event_mousebuttonup)
             parent.bind_blit(self._key + 'blit__', self.blit)
 

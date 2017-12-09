@@ -25,8 +25,8 @@ class TextInfo:
 
 # color takes pygame.Color args or pygame.Surface
 class Text(Widget):
-    def __init__(self, parent, text, x, y, font=None, color='white', group=None, callback=None, pydata=None):
-        Widget.__init__(self, parent, None, 'Text', group)
+    def __init__(self, parent, text, x, y, font=None, color='white', group=None, callback=None, pydata=None, allow_bindings=True):
+        Widget.__init__(self, parent, None, 'Text', group, allow_bindings)
         if font is None:
             self._font = pygame.font.Font(None, 24)
         else:
@@ -42,7 +42,7 @@ class Text(Widget):
         self.callback = callback
         self.pydata = pydata
 
-        if parent is not None:
+        if allow_bindings:
             parent.bind_blit(self._key, self.blit)
 
     def set_callback(self, callback, pydata=None):

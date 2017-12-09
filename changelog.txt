@@ -1,4 +1,6 @@
 date 12-8-2017
+Move group and pid from Widget to Scene.
+
 BUG has been fix
 work around remove
 

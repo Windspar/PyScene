@@ -14,9 +14,9 @@ class Carrot:
         self.position = [rect.centerx, int(rect.y - ((rect.h - h) / 2))]
 
 class Textbox(Widget):
-    def __init__(self, parent, rect, font=None, color='white', callback=None, image='blue', style='plain'):
-        Widget.__init__(self, parent, rect, 'Textbox', None)
-        self.text = Text(None, "Textbox", *self._rect.center, font, color)
+    def __init__(self, parent, rect, font=None, color='white', callback=None, image='blue', style='plain', allow_bindings=True):
+        Widget.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
+        self.text = Text(parent, "Textbox", *self._rect.center, font, color, allow_bindings=False)
         self._alpha(0.3)
         self._buffer = []
         self.callback = callback
@@ -29,7 +29,7 @@ class Textbox(Widget):
         else:
             self._image = image
 
-        if parent:
+        if allow_bindings:
             parent.bind_event(pygame.KEYDOWN, self._key + 'keydown__', self.event_keydown)
             parent.bind_blit(self._key + 'blit__', self.blit)
 

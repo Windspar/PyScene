@@ -14,21 +14,17 @@ class WidgetImage:
             self.disabled = pygame.transform.scale(self.disabled, size)
 
 class Widget:
-    group = {}
-    pid = 0
-
-    def __init__(self, parent, rect, classname, group):
+    def __init__(self, parent, rect, classname, group, allow_bindings):
         self.allow_toggle = False
         self.enable = True
+        self._parent = parent
         self._group = group
         self._toggle = False
         self._hover = False
-        self._key = '__widget_{0}_{1}__'.format(classname, Widget.pid)
-        Widget.pid += 1
+        self._key = '__widget_{0}_{1}__'.format(classname, parent._get_pid())
 
         if group:
-            Widget.group[self._group] = Widget.group.get(self._group, {'focus':None})
-            Widget.group[self._group][self._key] = self
+            parent._bind_group(self._group, self._key, self)
 
         if rect is None:
             self._rect = rect
@@ -37,17 +33,17 @@ class Widget:
         else:
             self._rect = pygame.Rect(*rect)
 
-        if parent:
+        if allow_bindings:
             parent.bind_event(pygame.MOUSEMOTION, self._key + 'm_motion__', self.event_mousemotion)
             parent.bind_event(pygame.MOUSEBUTTONDOWN, self._key + 'b_down__', self.event_mousebuttondown)
 
     def set_focus(self):
         if self._group:
-            if Widget.group[self._group]['focus']:
-                if Widget.group[self._group]['focus'] != self:
-                    Widget.group[self._group]['focus']._toggle = False
-            Widget.group[self._group]['focus'] = self
-            Widget.group[self._group]['focus']._toggle = True
+            if self._parent._bindings.group[self._group]['focus']:
+                if self._parent._bindings.group[self._group]['focus'] != self:
+                    self._parent._bindings.group[self._group]['focus']._toggle = False
+            self._parent._bindings.group[self._group]['focus'] = self
+            self._parent._bindings.group[self._group]['focus']._toggle = True
 
     def event_mousemotion(self, event, key, pydata):
         if event is None:
