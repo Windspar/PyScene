@@ -2,72 +2,72 @@
 #                       This is my boiler plate
 
 import pygame
-from PyScene import scene
-from PyScene.widgets import Text, Button, Textbox
-from PyScene.tool.gradient import vertical, horizontal
+from PyScene import Scene, Screen, Font, Text, Button, Textbox, gradient
 
 class Quit:
     def event(self, event):
         if event.type == pygame.QUIT:
-            scene.Screen.running = False
+            Screen.running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                scene.Screen.running = False
+                Screen.running = False
 
-class Intro(Quit, scene.Scene):
+class Intro(Quit, Scene):
     def __init__(self):
-        scene.Scene.__init__(self)
-        mid = scene.Screen.size[0] / 2
+        Scene.__init__(self)
+        mid = Screen.size[0] / 2
         # text is auto center
-        Text(self, 'Welcome To PyScene', mid, 20, scene.Font.basic, 'dodgerblue')
+        Text(self, 'Welcome To PyScene', mid, 20, Font.basic, 'dodgerblue')
         Button(self, "Push Me", (10,70,100,30), self.push)
 
-        Text(self, "Button Styles", 60, 150, scene.Font.small, 'dodgerblue')
+        Text(self, "Button Styles", 60, 150, Font.small, 'dodgerblue')
         Button(self, "Simple", (10,170,100,30), None, None, 'mistyrose') # simple is default
         Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
         Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
 
-        colorful_surface = vertical(('blue', 'red', 'wheat4', 'green', 'burlywood'))
-        Text(self, 'Colorful Text', mid, 400, scene.Font.basic, colorful_surface)
-        colorful_surface = horizontal(('blue', 'red', 'wheat4', 'green', 'burlywood'))
-        Text(self, 'Colorful Text', mid, 440, scene.Font.basic, colorful_surface)
+        colorful_surface = gradient.vertical(('blue', 'red', 'wheat4', 'green', 'burlywood'))
+        Text(self, 'Colorful Text', mid, 400, Font.basic, colorful_surface)
+        colorful_surface = gradient.horizontal(('blue', 'red', 'wheat4', 'green', 'burlywood'))
+        Text(self, 'Colorful Text', mid, 440, Font.basic, colorful_surface)
+        t = Text(self, 'Angle Text', 100, 500, Font.basic, 'dodgerblue')
+        t.set_angle(45)
 
         self.groups = [
             ("Group Example",
-            Text(self, "Text Group Example", mid, 100, scene.Font.basic, 'wheat4')),
+            Text(self, "Text Group Example", mid, 100, Font.basic, 'wheat4')),
             ("Colors",
-            Text(self, "Built In Colors", mid, 150, scene.Font.basic, 'wheat4')),
+            Text(self, "Built In Colors", mid, 150, Font.basic, 'wheat4')),
             ("GrayColors",
-            Text(self, "Built In Colors GrayScale", mid, 200, scene.Font.basic, 'wheat4'))
+            Text(self, "Built In Colors GrayScale", mid, 200, Font.basic, 'wheat4'))
             ]
         for data, text in self.groups:
             text.set_hilight('burlywood')
             text.set_callback(self.text_callback, data)
 
-        Textbox(self, (mid - 100, 300, 200, 40), scene.Font.basic)
+        Textbox(self, (mid - 100, 300, 200, 40), Font.basic)
 
     def push(self, button, pydata):
         # let switch scene
-        scene.Screen.set_scene = "Push Me"
+        Screen.set_scene = "Push Me"
 
     def text_callback(self, text, pydata):
-        scene.Screen.set_scene = pydata
+        Screen.set_scene = pydata
 
     # main draw loop
     def blit(self, surface):
         surface.fill((0,0,30))
 
-class GroupExample(Quit, scene.Scene):
+class GroupExample(Quit, Scene):
     def __init__(self):
-        scene.Scene.__init__(self)
-        mid = scene.Screen.size[0] / 2
-        # text is auto center
-        self.intro = Text(self, 'Text Group Example', mid, 20, scene.Font.basic, 'orange')
+        Scene.__init__(self)
+        mid = Screen.size[0] / 2
+                # text is auto center
+        self.intro = Text(self, 'Text Group Example', mid, 20, Font.basic, 'orange')
         self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
         self.texts = [
-            Text(self, 'Me First', mid, 200, scene.Font.small, 'wheat4', 'me_group'),
-            Text(self, 'Pick Me', mid, 250, scene.Font.small, 'wheat4', 'me_group'),
-            Text(self, 'Click Me', mid, 300, scene.Font.small, 'wheat4', 'me_group')
+            Text(self, 'Me First', mid, 200, Font.small, 'wheat4', 'me_group'),
+            Text(self, 'Pick Me', mid, 250, Font.small, 'wheat4', 'me_group'),
+            Text(self, 'Click Me', mid, 300, Font.small, 'wheat4', 'me_group')
         ]
 
         for t in self.texts:
@@ -78,31 +78,31 @@ class GroupExample(Quit, scene.Scene):
         surface.fill((30,30,30))
 
     def back_push(self, button, pydata):
-        scene.Screen.set_scene = "Intro"
+        Screen.set_scene = "Intro"
 
     # when you enter the scene
     def entrance(self):
         self.texts[0].set_focus()
 
-class PushMe(Quit, scene.Scene):
+class PushMe(Quit, Scene):
     def __init__(self):
-        scene.Scene.__init__(self)
-        mid = scene.Screen.size[0] / 2
-        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, scene.Font.basic, 'red')
+        Scene.__init__(self)
+        mid = Screen.size[0] / 2
+        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, Font.basic, 'red')
         self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
 
     def push(self, button, pydata):
-        scene.Screen.set_scene = "Intro"
+        Screen.set_scene = "Intro"
 
     def blit(self, surface):
         surface.fill((30,0,0))
 
-class Colors(Quit, scene.Scene):
+class Colors(Quit, Scene):
     def __init__(self, grayscale=False):
-        scene.Scene.__init__(self)
-        mid = scene.Screen.size[0] / 2
+        Scene.__init__(self)
+        mid = Screen.size[0] / 2
         self.page = 1
-        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, scene.Font.basic, 'snow')
+        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, Font.basic, 'snow')
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
         self.back.text.set_color('dodgerblue')
         if grayscale:
@@ -116,7 +116,7 @@ class Colors(Quit, scene.Scene):
         for i in range(100):
             y = i % 20 * 25 + 70
             x = int(i / 20) * 150 + 100
-            self.keys_group.append( Text(self, "None", x, y, scene.Font.small, (0,0,0)) )
+            self.keys_group.append( Text(self, "None", x, y, Font.small, (0,0,0)) )
         self.update_colors()
 
         prev = Button(self, 'Prev', (mid - 150, 560, 100, 30), self.prev_page, None, 'snow')
@@ -153,7 +153,7 @@ class Colors(Quit, scene.Scene):
             self.intro.set_text('Built In Colors ' + str(self.page))
 
     def push_back(self, button, pydata):
-        scene.Screen.set_scene = "Intro"
+        Screen.set_scene = "Intro"
 
     def blit(self, surface):
         surface.fill((0,0,0))
@@ -161,21 +161,20 @@ class Colors(Quit, scene.Scene):
             surface.fill(pygame.Color('grey15'), rect)
 
 def main():
-    scene.Screen.center()
-    scene.Screen.init('Welcome To PyScene', (800, 600))
+    Screen.center()
+    Screen.init('Welcome To PyScene', (800, 600))
     # Setting fonts global through scene
-    scene.Font.basic = pygame.font.Font(None, 36)
-    scene.Font.small = pygame.font.Font(None, 24)
+    Font.basic = Font.load(36)
+    Font.small = Font.load(24)
     # store my scenes
-    scene.Screen.scenes['Intro'] = Intro()
-    scene.Screen.scenes['Colors'] = Colors()
-    scene.Screen.scenes['GrayColors'] = Colors(True)
-    scene.Screen.scenes['Push Me'] = PushMe()
-    scene.Screen.scenes['Group Example'] = GroupExample()
+    Screen.scenes['Intro'] = Intro()
+    Screen.scenes['Colors'] = Colors()
+    Screen.scenes['GrayColors'] = Colors(True)
+    Screen.scenes['Push Me'] = PushMe()
+    Screen.scenes['Group Example'] = GroupExample()
 
     # mainloop, First scene, fps
-    scene.Screen.loop('Intro', 30)
-    pygame.quit()
+    Screen.loop('Intro', 30)
 
 if __name__ == '__main__':
     main()

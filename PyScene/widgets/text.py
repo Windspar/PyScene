@@ -13,6 +13,7 @@ from tool.gradient import apply_surface
 class TextInfo:
     def __init__(self, color):
         self.image = None
+        self.r_image = None
         self.set_color(color)
 
     def set_color(self, color):
@@ -38,6 +39,8 @@ class Text(Widget):
         self._info = TextInfo(color)
         self._hover_info = None
         self._toggle_info = None
+        self._angle = None
+        self._r_rect = None
         self._render(self._info)
         self.callback = callback
         self.pydata = pydata
@@ -80,19 +83,38 @@ class Text(Widget):
 
         if isinstance(info.color, pygame.Surface):
             info.image = apply_surface(surface, info.color)
+            if self._angle is not None:
+                info.r_image = pygame.transform.rotate(info.image, self._angle)
+                self._r_rect = info.r_image.get_rect()
+                self._r_rect.center = self._rect.center
         else:
             info.image = surface
+            if self._angle is not None:
+                info.r_image = pygame.transform.rotate(info.image, self._angle)
+                self._r_rect = info.r_image.get_rect()
+                self._r_rect.center = self._rect.center
 
     def blit(self, surface):
-        if self._hover_info:
-            if self._group and self._toggle:
-                surface.blit(self._toggle_info.image, self._rect)
-            elif self._hover:
-                surface.blit(self._hover_info.image, self._rect)
+        if self._angle is None:
+            if self._hover_info:
+                if self._group and self._toggle:
+                    surface.blit(self._toggle_info.image, self._rect)
+                elif self._hover:
+                    surface.blit(self._hover_info.image, self._rect)
+                else:
+                    surface.blit(self._info.image, self._rect)
             else:
                 surface.blit(self._info.image, self._rect)
         else:
-            surface.blit(self._info.image, self._rect)
+            if self._hover_info:
+                if self._group and self._toggle:
+                    surface.blit(self._toggle_info.r_image, self._r_rect)
+                elif self._hover:
+                    surface.blit(self._hover_info.r_image, self._r_rect)
+                else:
+                    surface.blit(self._info.r_image, self._r_rect)
+            else:
+                surface.blit(self._info.r_image, self._r_rect)
 
     def _do_render(self):
         self._render(self._info)
@@ -122,6 +144,10 @@ class Text(Widget):
                 self._position = point
         self.position = Point(point, y)
         self._do_anchor()
+
+    def set_angle(self, angle):
+        self._angle = angle
+        self._do_render()
 
     def set_anchor(self, pystr):
         self._anchor = pystr

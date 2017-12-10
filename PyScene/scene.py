@@ -3,7 +3,13 @@ import pygame
 import PyScene.tick_timer as tick_timer
 pygame.init()
 
-class Font: pass
+class Font:
+	@staticmethod
+	def load(fontname, size=None):
+		if size is None:
+			return pygame.font.Font(None, fontname)
+		else:
+			return pygame.font.Font(fontname, size)
 
 class Bindings:
 	def __init__(self):
@@ -101,3 +107,5 @@ class Screen:
 
 			pygame.display.flip()
 			Screen.clock.tick(Screen.fps)
+
+		pygame.quit()

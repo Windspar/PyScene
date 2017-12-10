@@ -1,6 +1,13 @@
+date 12-10-2017
+-- Pyscene.__init__.py --
+improve imports
+
+-- widgets.text.py --
+added set_angle for rotation
+
 date 12-9-217
 -- intro.py --
-separated colors by color and gray/grey 
+separated colors by color and gray/grey
 
 -- gradient.py --
 added alpha support
