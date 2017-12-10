@@ -33,15 +33,13 @@ class Text(Widget):
         else:
             self._font = font
 
+        self._info = {'base': TextInfo(color)}
         self._text = text
         self._anchor = 'center'
         self._position = Point(x, y)
-        self._info = TextInfo(color)
-        self._hover_info = None
-        self._toggle_info = None
         self._angle = None
         self._r_rect = None
-        self._render(self._info)
+        self._render(self._info['base'])
         self.callback = callback
         self.pydata = pydata
 
@@ -52,6 +50,21 @@ class Text(Widget):
         self.callback = callback
         self.pydata = pydata
 
+    def event_mousemotion(self, event, key, pydata):
+        if event is None:
+            self._hover = False
+            if self._info.get('blink', False):
+                if self._parent.timer[self._key + 'timer__'].stop:
+                    self._parent.timer.start(self._key + 'timer__')
+        elif self.enable:
+            self._hover = self._rect.collidepoint(event.pos)
+            if self._info.get('blink', False) and self._hover:
+                self._parent.timer.stop(self._key + 'timer__')
+            else:
+                if self._info.get('blink', False):
+                    if self._parent.timer[self._key + 'timer__'].stop:
+                        self._parent.timer.start(self._key + 'timer__')
+
     def event_mousebuttondown(self, event, key, pydata):
         Widget.event_mousebuttondown(self, event, key, pydata)
 
@@ -60,18 +73,40 @@ class Text(Widget):
                 self.callback(self, self.pydata)
 
     def set_hilight(self, color):
-        if self._hover_info is None:
-            self._hover_info = TextInfo(color)
+        if self._info.get('hover', False):
+            self._info['hover'].set_color(color)
         else:
-            self._hover_info.set_color(color)
-        self._render(self._hover_info)
+            self._info['hover'] = TextInfo(color)
+        self._render(self._info['hover'])
 
     def set_toggle(self, color):
-        if self._toggle_info is None:
-            self._toggle_info = TextInfo(color)
+        if self._info.get('toggle', False):
+            self._info['toggle'].set_color(color)
         else:
-            self._toggle_info.set_color(color)
-        self._render(self._toggle_info)
+            self._info['toggle'] = TextInfo(color)
+        self._render(self._info['toggle'])
+
+    def set_blink(self, color, time_interval, interval):
+        if self._info.get('blink', False):
+            self._info['blink'].color = color
+        else:
+            self._info['blink'] = TextInfo(color)
+
+        self._info['blink'].interval = interval
+        self._info['blink'].time_interval = time_interval
+        self._info['blink'].blink = False
+        self._parent.timer.add(self._key + 'timer__', interval, self._timer_blink, 'time')
+        self._render(self._info['blink'])
+
+    def _timer_blink(self, info):
+        if info.pydata == 'time':
+            self._info['blink'].blink = False
+            info.pydata = 'blink'
+            return self._info['blink'].time_interval
+        else:
+            self._info['blink'].blink = True
+            info.pydata = 'time'
+            return self._info['blink'].interval
 
     def _render(self, info):
         if isinstance(info.color, pygame.Surface):
@@ -95,33 +130,28 @@ class Text(Widget):
                 self._r_rect.center = self._rect.center
 
     def blit(self, surface):
-        if self._angle is None:
-            if self._hover_info:
-                if self._group and self._toggle:
-                    surface.blit(self._toggle_info.image, self._rect)
-                elif self._hover:
-                    surface.blit(self._hover_info.image, self._rect)
-                else:
-                    surface.blit(self._info.image, self._rect)
+        rect = [self._r_rect, self._rect][self._angle is None]
+        attr = ['r_image', 'image'][self._angle is None]
+
+        if self._info.get('hover', False):
+            if self._group and self._toggle:
+                surface.blit(getattr(self._info['toggle'], attr), rect)
+            elif self._hover:
+                surface.blit(getattr(self._info['hover'], attr), rect)
             else:
-                surface.blit(self._info.image, self._rect)
+                if self._info.get('blink', False) and self._info['blink'].blink:
+                    surface.blit(getattr(self._info['blink'], attr), rect)
+                else:
+                    surface.blit(getattr(self._info['base'], attr), rect)
         else:
-            if self._hover_info:
-                if self._group and self._toggle:
-                    surface.blit(self._toggle_info.r_image, self._r_rect)
-                elif self._hover:
-                    surface.blit(self._hover_info.r_image, self._r_rect)
-                else:
-                    surface.blit(self._info.r_image, self._r_rect)
+            if self._info.get('blink', False) and self._info['blink'].blink:
+                surface.blit(getattr(self._info['blink'], attr), rect)
             else:
-                surface.blit(self._info.r_image, self._r_rect)
+                surface.blit(getattr(self._info['base'], attr), rect)
 
     def _do_render(self):
-        self._render(self._info)
-        if self._hover_info:
-            self._render(self._hover_info)
-        if self._toggle_info:
-            self._render(self._toggle_info)
+        for key in self._info.keys():
+            self._render(self._info[key])
 
     def set_font(self, font):
         self._font = font
@@ -132,8 +162,8 @@ class Text(Widget):
         self._do_render()
 
     def set_color(self, color):
-        self._info.set_color(color)
-        self._render(self._info)
+        self._info['base'].set_color(color)
+        self._render(self._info['base'])
 
     # handles Point, tuple, list, (x, y)
     def set_position(self, point, y=None):

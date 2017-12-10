@@ -31,6 +31,7 @@ class Intro(Quit, Scene):
         Text(self, 'Colorful Text', mid, 440, Font.basic, colorful_surface)
         t = Text(self, 'Angle Text', 100, 500, Font.basic, 'dodgerblue')
         t.set_angle(45)
+        t.set_blink('snow',1000, 400)
 
         self.groups = [
             ("Group Example",

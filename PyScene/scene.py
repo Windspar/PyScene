@@ -88,20 +88,20 @@ class Screen:
 
 		while Screen.running:
 			if Screen.set_scene:
-				Screen.current_scene.timer.stop()
+				Screen.current_scene.timer._stop()
 				Screen.current_scene.drop()
 				Screen.current_scene = Screen.scenes[Screen.set_scene]
 				for key, (callback, pydata) in Screen.current_scene._bindings.events[pygame.MOUSEMOTION].items():
 					callback(None, key, pydata)
 				Screen.current_scene.entrance()
-				Screen.current_scene.timer.time_elaspe()
+				Screen.current_scene.timer._time_elaspe()
 				Screen.set_scene = None
 
 			for event in pygame.event.get():
 				Screen.current_scene._event(event)
 				Screen.current_scene.event(event)
 
-			Screen.current_scene.timer.update(pygame.time.get_ticks())
+			Screen.current_scene.timer._update(pygame.time.get_ticks())
 			Screen.current_scene.blit(Screen.surface)
 			Screen.current_scene._blit(Screen.surface)
 

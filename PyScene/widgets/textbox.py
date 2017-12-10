@@ -114,12 +114,12 @@ class Textbox(Widget):
 
     # expensive operation
     def _alpha(self, pyfloat):
-        rect = self.text._info.image.get_rect()
+        rect = self.text._info['base'].image.get_rect()
         for x in range(rect.w):
             for y in range(rect.h):
-                color = self.text._info.image.get_at((x, y))
+                color = self.text._info['base'].image.get_at((x, y))
                 color.a = int(color.a * pyfloat)
-                self.text._info.image.set_at((x,y), color)
+                self.text._info['base'].image.set_at((x,y), color)
 
     def event_mousebuttondown(self, event, key, pydata):
         if event.button == 1:

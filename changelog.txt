@@ -1,9 +1,13 @@
 date 12-10-2017
+-- ticktimer.py --
+improve ticktimer
+
 -- Pyscene.__init__.py --
 improve imports
 
 -- widgets.text.py --
 added set_angle for rotation
+overhauled store all info in a dict
 
 date 12-9-217
 -- intro.py --
