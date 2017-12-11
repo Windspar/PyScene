@@ -1,7 +1,6 @@
 import os
 import pygame
 import pyscene.tick_timer as tick_timer
-pygame.init()
 
 class Font:
 	@staticmethod
@@ -74,13 +73,14 @@ class Screen:
 
 	# static
 	def init(caption, size, flags=0, depth=0):
+		pygame.init()
 		Screen.size = size
 		Screen.current_scene = Scene()
 		pygame.display.set_caption(caption)
 		Screen.surface = pygame.display.set_mode(size, flags, depth)
 		Screen.clock = pygame.time.Clock()
 
-	#static
+	# static
 	def loop(start_scene=None, fps=60):
 		Screen.fps = fps
 		Screen.running = True
