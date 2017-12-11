@@ -1,6 +1,6 @@
 import os
 import pygame
-import PyScene.tick_timer as tick_timer
+import pyscene.tick_timer as tick_timer
 pygame.init()
 
 class Font:

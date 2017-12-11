@@ -2,7 +2,7 @@
 #                       This is my boiler plate
 
 import pygame
-from PyScene import Scene, Screen, Font, Text, Button, Textbox, gradient
+from pyscene import Scene, Screen, Font, Text, Button, Textbox, gradient
 
 class Quit:
     def event(self, event):

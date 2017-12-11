@@ -4,9 +4,9 @@ sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 import pygame
 from widgets.widget import Widget, WidgetImage
 from widgets.text import Text
-from PyScene.tool import Vector
-import PyScene.tool.twist as twist
-import PyScene.tool.gradient as gradient
+from pyscene.tool import Vector
+import pyscene.tool.twist as twist
+import pyscene.tool.gradient as gradient
 
 def simple_textbox(color, disabled_color, objrect):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.7, False, False)
@@ -88,6 +88,10 @@ class Textbox(Widget):
         if len(self._buffer) == 0:
             self.text.set_text(self._ghost)
             twist.ghost(self.text._info['base'].image, self._ghost_alpha)
+
+    def set_text(self, text):
+        self._buffer = list(text)
+        self.text.set_text(text)
 
     def make_button(self, color, style):
         if style == 'simple':
@@ -179,6 +183,7 @@ class Textbox(Widget):
                 self._carrot.pos = 0
             elif event.key == pygame.K_RETURN:
                 if self.callback:
+                    self._toggle = False
                     self.callback(self, ''.join(self._buffer))
 
             self.update_text()
@@ -191,6 +196,9 @@ class Textbox(Widget):
                 self._toggle = True
                 pygame.key.set_repeat(80,80)
             else:
+                if self._toggle:
+                    if self.callback:
+                        self.callback(''.join(self._buffer))
                 self._toggle = False
                 if len(self._buffer) == 0:
                     self.text.set_text(self._ghost)

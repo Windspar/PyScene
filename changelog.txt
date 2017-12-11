@@ -1,3 +1,10 @@
+date 12-11-2017
+rename PyScene to pyscene. python naming style.
+
+-- textbox.py --
+improve Textbox callback
+added set_text to Textbox
+
 date 12-10-2017
 -- twist.py --
 new color base functions

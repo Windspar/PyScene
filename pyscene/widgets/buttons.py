@@ -3,8 +3,8 @@ import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from .widget import Widget, WidgetImage
-from PyScene.tool import gradient, twist
-from PyScene.tool.point import Vector, Point
+from pyscene.tool import gradient, twist
+from pyscene.tool.point import Vector, Point
 from .text import Text
 
 def simple_button(color, disabled_color):

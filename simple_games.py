@@ -1,7 +1,7 @@
 import pygame
-from PyScene import Scene, Screen, Font
-from PyScene import Button, Text, Textbox
-from PyScene import Point, Vector, gradient
+from pyscene import Scene, Screen, Font
+from pyscene import Button, Text, Textbox
+from pyscene import Point, Vector, gradient
 from random import choice, shuffle
 
 class Quit:
