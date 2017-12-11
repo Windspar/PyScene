@@ -1,4 +1,10 @@
 date 12-10-2017
+-- twist.py --
+new color base functions
+
+-- textbox.py --
+added to images. simple and box
+
 -- ticktimer.py --
 improve ticktimer
 

@@ -1,6 +1,55 @@
+import os
+import sys
+sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 import pygame
 from widgets.widget import Widget, WidgetImage
 from widgets.text import Text
+from PyScene.tool import Vector
+import PyScene.tool.twist as twist
+import PyScene.tool.gradient as gradient
+
+def simple_textbox(color, disabled_color, objrect):
+    bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.7, False, False)
+    brightr, dimr, darkr, dcolorr = twist.gkey(color, disabled_color, 0.7, True, False)
+    rect = pygame.Rect(0,0,*objrect.size)
+    rect.inflate_ip(-8, -8)
+    def overlay(fg, bg, rect, objrect):
+        gsurface = gradient.horizontal(bg)
+        back = pygame.transform.scale(gsurface, objrect.size)
+        gsurface = gradient.horizontal(fg)
+        front = pygame.transform.scale(gsurface, rect.size)
+        back.blit(front, (4,4))
+        return back
+
+    return WidgetImage(
+        overlay(dim, dimr, rect, objrect),
+        overlay(dim, brightr, rect, objrect),
+        overlay(dim, dimr, rect, objrect),
+        overlay(dcolor, dcolorr, rect, objrect))
+
+def box_textbox(color , disabled_color, alpha, objrect):
+    bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.7, False, False)
+    rect = pygame.Rect(0,0,*objrect.size)
+    rect.inflate_ip(-2, -2)
+
+    def overlay(fg, bg, rect, objrect, alpha):
+        if isinstance(bg, Vector):
+            surface = pygame.Surface(objrect.size)
+            surface = surface.convert_alpha()
+            surface.fill((*bg.tup_cast(), alpha))
+        else:
+            gsurface = gradient.vertical(bg, objrect.size[0], alpha)
+            surface = pygame.transform.scale(gsurface, objrect.size)
+
+        pygame.draw.rect(surface, fg.tup_cast(), rect, 1)
+        return surface
+
+    return WidgetImage(
+        overlay(dim[0], bright[0], rect, objrect, alpha),
+        overlay(bright[0], bright[0], rect, objrect, alpha),
+        overlay(dark[0], bright[0], rect, objrect, alpha),
+        overlay(dcolor[0], dcolor, rect, objrect, alpha))
+
 
 class Carrot:
     def __init__(self, font, rect, color):
@@ -14,15 +63,15 @@ class Carrot:
         self.position = [rect.centerx, int(rect.y - ((rect.h - h) / 2))]
 
 class Textbox(Widget):
-    def __init__(self, parent, rect, font=None, color='white', callback=None, image='blue', style='plain', allow_bindings=True):
+    def __init__(self, parent, rect, font=None, color='white', callback=None, image='steelblue', style='simple', allow_bindings=True):
         Widget.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
         self.text = Text(parent, "Textbox", *self._rect.center, font, color, allow_bindings=False)
-        self._alpha(0.3)
+        twist.ghost(self.text._info['base'].image, 60)
         self._buffer = []
         self.callback = callback
         self._carrot = Carrot(self.text._font, self.text._rect, color)
         self._ghost = 'Textbox'
-        self._ghost_alpha = 0.3
+        self._ghost_alpha = 60
 
         if isinstance(image, (str, tuple, list)):
             self.make_button(image, style)
@@ -35,21 +84,43 @@ class Textbox(Widget):
 
     # alpha 0 - 255 , expensive operation
     def set_ghost(self, text, alpha):
-        self._ghost_alpha = alpha / 255.0
         self._ghost = text
         if len(self._buffer) == 0:
             self.text.set_text(self._ghost)
-            self._alpha(self._ghost_alpha)
+            twist.ghost(self.text._info['base'].image, self._ghost_alpha)
 
     def make_button(self, color, style):
-        self._image = pygame.Surface(self._rect.size)
-        if isinstance(color, str):
-            self._image.fill(pygame.Color(color))
-        else:
-            self._image.fill(pygame.Color(*color))
+        if style == 'simple':
+            if isinstance(color, (str, Vector)):
+                self._image = simple_textbox(color, 'gray40', self._rect)
+            elif len(color) == 1:
+                self._image = simple_textbox(color[0], 'gray40', self._rect)
+            elif len(color) == 2:
+                self._image = simple_textbox(color[0], color[1], self._rect)
+            else:
+                print('Error: color in wrong format', color)
+                self._image = simple_textbox('dodgerblue', 'gray40')
+        elif style == 'box':
+            if isinstance(color, (str, Vector)):
+                self._image = box_textbox(color, 'gray40', 70, self._rect)
+            elif len(color) == 1:
+                self._image = box_textbox(color[0], 'gray40', 70, self._rect)
+            elif len(color) == 2:
+                self._image = box_textbox(color[0], color[1], 70, self._rect)
+            elif len(color) == 3:
+                self._image = box_textbox(color[0], color[1], color[2], self._rect)
+            else:
+                print('Error: color in wrong format', color)
+                self._image = box_textbox('dodgerblue', 'gray40', 70, self._rect)
 
     def blit(self, surface):
-        surface.blit(self._image, self._rect)
+        if not self.enable:
+            surface.blit(self._image.disabled, self._rect)
+        elif self._hover and not self._toggle:
+            surface.blit(self._image.hover, self._rect)
+        else:
+            surface.blit(self._image.base, self._rect)
+
         self.text.blit(surface)
         if self._toggle:
             surface.blit(self._carrot.image, self._carrot.position)
@@ -112,15 +183,6 @@ class Textbox(Widget):
 
             self.update_text()
 
-    # expensive operation
-    def _alpha(self, pyfloat):
-        rect = self.text._info['base'].image.get_rect()
-        for x in range(rect.w):
-            for y in range(rect.h):
-                color = self.text._info['base'].image.get_at((x, y))
-                color.a = int(color.a * pyfloat)
-                self.text._info['base'].image.set_at((x,y), color)
-
     def event_mousebuttondown(self, event, key, pydata):
         if event.button == 1:
             if self._hover and self.enable:
@@ -132,6 +194,6 @@ class Textbox(Widget):
                 self._toggle = False
                 if len(self._buffer) == 0:
                     self.text.set_text(self._ghost)
-                    self._alpha(self._ghost_alpha)
+                    twist.ghost(self.text._info['base'].image, self._ghost_alpha)
 
                 pygame.key.set_repeat()

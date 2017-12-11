@@ -3,74 +3,21 @@ import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from .widget import Widget, WidgetImage
-from PyScene.tool.gradient import horizontal, vertical, apply_surface
+from PyScene.tool import gradient, twist
 from PyScene.tool.point import Vector, Point
 from .text import Text
 
-def make_color(color, reverse=False, allow_dimmer=True, flow=True):
-    color = Vector(color).cast()
-    if allow_dimmer:
-        dimmer = (color * 0.20).cast()
-        bright = color - dimmer
-    else:
-        bright = color
-    dark = (bright * 0.5).cast()
-    if flow:
-        if reverse:
-            return bright, dark, dark, bright
-        return dark, bright, bright, dark
-    else:
-        if reverse:
-            return dark, bright
-        return bright, dark
-
-def make_brightcolor(color, reverse=False, flow=True):
-    color = Vector(color).cast()
-    dimmer = (color * 0.20).cast()
-    bright = color
-    dark = ((bright - dimmer) * 0.5).cast()
-    dark += (dark * 0.20).cast()
-    if flow:
-        if reverse:
-            return bright, dark, dark, bright
-        return dark, bright, bright, dark
-    else:
-        if reverse:
-            return dark, bright
-        return bright, dark
-
-def make_colorkey(color, disabled_color, reverse=False, flow=True):
-    if isinstance(color, (str, Vector)):
-        bright = make_brightcolor(color, reverse, flow)
-        dim = make_color(color, reverse, True, flow)
-        dark = make_color(color, not reverse, True, flow)
-    else:
-        bright = [Vector(c) for c in color]
-        dim = [c * 0.5 for c in bright]
-        if flow:
-            mid = int(len(colors) / 2)
-            dark = dim[:mid][::-1] + dim[mid:][::-1]
-        else:
-            dark = dim[::-1]
-
-    if isinstance(disabled_color, (str, Vector)):
-        dcolor = make_color(disabled_color, reverse, False, flow)
-    else:
-        dcolor = disabled_color
-
-    return bright, dim, dark, dcolor
-
 def simple_button(color, disabled_color):
-    bright, dim, dark, dcolor = make_colorkey(color, disabled_color)
+    bright, dim, dark, dcolor = twist.gkey(color, disabled_color)
 
     return WidgetImage(
-        vertical(dim),
-        vertical(bright),
-        vertical(dark),
-        vertical(dcolor))
+        gradient.vertical(dim),
+        gradient.vertical(bright),
+        gradient.vertical(dark),
+        gradient.vertical(dcolor))
 
 def box_button(color, disabled_color, alpha, objrect):
-    bright, dim, dark, dcolor = make_colorkey(color, disabled_color, False, False)
+    bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.5, False, False)
     rect = pygame.Rect(0,0,*objrect.size)
     rect.inflate_ip(-6, -6)
 
@@ -80,7 +27,7 @@ def box_button(color, disabled_color, alpha, objrect):
             surface = surface.convert_alpha()
             surface.fill((*bg.tup_cast(), alpha))
         else:
-            gsurface = vertical(bg, objrect.size[0], alpha)
+            gsurface = gradient.vertical(bg, objrect.size[0], alpha)
             surface = pygame.transform.scale(gsurface, objrect.size)
 
         pygame.draw.rect(surface, fg.tup_cast(), rect, 1)
@@ -93,12 +40,12 @@ def box_button(color, disabled_color, alpha, objrect):
         overlay(dcolor[0], dcolor, rect, objrect, alpha))
 
 def normal_button(color, disabled_color, rect):
-    bright, dim, dark, dcolor = make_colorkey(color, disabled_color, False, False)
-    brightr, dimr, darkr, dcolorr = make_colorkey(color, disabled_color, True, False)
+    bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.5, False, False)
+    brightr, dimr, darkr, dcolorr = twist.gkey(color, disabled_color, 0.5, True, False)
 
     def overlay(fg, bg, rect):
-        back = horizontal(bg, rect.w)
-        front = horizontal(fg, rect.w - 6)
+        back = gradient.horizontal(bg, rect.w)
+        front = gradient.horizontal(fg, rect.w - 6)
         back = pygame.transform.scale(back, rect.size)
         w, h = rect.size
         rect = pygame.Rect(3,3,w - 6, h - 6)

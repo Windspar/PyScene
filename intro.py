@@ -31,7 +31,8 @@ class Intro(Quit, Scene):
         Text(self, 'Colorful Text', mid, 440, Font.basic, colorful_surface)
         t = Text(self, 'Angle Text', 100, 500, Font.basic, 'dodgerblue')
         t.set_angle(45)
-        t.set_blink('snow',1000, 400)
+        colorful_surface = gradient.horizontal(('white', 'snow', 'blue', 'snow', 'white'))
+        t.set_blink(colorful_surface, 1000, 400)
 
         self.groups = [
             ("Group Example",
@@ -45,7 +46,8 @@ class Intro(Quit, Scene):
             text.set_hilight('burlywood')
             text.set_callback(self.text_callback, data)
 
-        Textbox(self, (mid - 100, 300, 200, 40), Font.basic)
+        tb = Textbox(self, (mid - 125, 300, 250, 40), Font.basic)
+        tb.set_ghost('Enter Name Here', 60)
 
     def push(self, button, pydata):
         # let switch scene
