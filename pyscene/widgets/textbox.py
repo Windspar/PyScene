@@ -97,22 +97,34 @@ class Textbox(Widget):
         if style == 'simple':
             if isinstance(color, (str, Vector)):
                 self._image = simple_textbox(color, 'gray40', self._rect)
-            elif len(color) == 1:
-                self._image = simple_textbox(color[0], 'gray40', self._rect)
-            elif len(color) == 2:
-                self._image = simple_textbox(color[0], color[1], self._rect)
+            elif isinstance(color[0], (str, int, float, Vector)):
+                self._image = simple_textbox(color, 'gray40', self._rect)
+            elif isinstance(color[0], (tuple, list)):
+                if len(color) == 1:
+                    self._image = simple_textbox(color[0], 'gray40', self._rect)
+                elif len(color) == 2:
+                    self._image = simple_textbox(color[0], color[1], self._rect)
+                else:
+                    print('Error: color in wrong format', color)
+                    self._image = simple_textbox('dodgerblue', 'gray40')
             else:
                 print('Error: color in wrong format', color)
                 self._image = simple_textbox('dodgerblue', 'gray40')
         elif style == 'box':
             if isinstance(color, (str, Vector)):
                 self._image = box_textbox(color, 'gray40', 70, self._rect)
-            elif len(color) == 1:
-                self._image = box_textbox(color[0], 'gray40', 70, self._rect)
-            elif len(color) == 2:
-                self._image = box_textbox(color[0], color[1], 70, self._rect)
-            elif len(color) == 3:
-                self._image = box_textbox(color[0], color[1], color[2], self._rect)
+            elif isinstance(color[0], (str, int, float, Vector)):
+                self._image = box_textbox(color, 'gray40', 70, self._rect)
+            elif isinstance(color[0], (tuple, list)):
+                if len(color) == 1:
+                    self._image = box_textbox(color[0], 'gray40', 70, self._rect)
+                elif len(color) == 2:
+                    self._image = box_textbox(color[0], color[1], 70, self._rect)
+                elif len(color) == 3:
+                    self._image = box_textbox(color[0], color[1], color[2], self._rect)
+                else:
+                    print('Error: color in wrong format', color)
+                    self._image = box_textbox('dodgerblue', 'gray40', 70, self._rect)
             else:
                 print('Error: color in wrong format', color)
                 self._image = box_textbox('dodgerblue', 'gray40', 70, self._rect)

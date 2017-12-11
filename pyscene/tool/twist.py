@@ -42,8 +42,11 @@ def gkey(color, disabled_color, shade=0.5, reverse=False, flow=True):
         bright = [Vector(c) for c in color]
         dim = [c * shade for c in bright]
         if flow:
-            mid = int(len(colors) / 2)
-            dark = dim[:mid][::-1] + dim[mid:][::-1]
+            mid = int(len(color) / 2)
+            if mid == len(color) / 2:
+                dark = dim[:mid][::-1] + dim[mid:][::-1]
+            else:
+                dark = [dim[mid]] + dim[:mid][::-1] + dim[mid + 1:][::-1] + [dim[mid]]
         else:
             dark = dim[::-1]
 

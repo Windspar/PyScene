@@ -88,32 +88,50 @@ class Button(Widget):
         if style == 'simple':
             if isinstance(color, (str, Vector)):
                 self._image = simple_button(color, 'gray40')
-            elif len(color) == 1:
-                self._image = simple_button(color[0], 'gray40')
-            elif len(color) == 2:
-                self._image = simple_button(color[0], color[1])
+            elif isinstance(color[0], (str, int, float, Vector)):
+                self._image = simple_button(color, 'gray40')
+            elif isinstance(color[0], (tuple, list)):
+                if len(color) == 1:
+                    self._image = simple_button(color[0], 'gray40')
+                elif len(color) == 2:
+                    self._image = simple_button(color[0], color[1])
+                else:
+                    print('Error: color in wrong format', color)
+                    self._image = simple_button('dodgerblue', 'gray40')
             else:
                 print('Error: color in wrong format', color)
                 self._image = simple_button('dodgerblue', 'gray40')
         elif style == 'normal':
             if isinstance(color, (str, Vector)):
                 self._image = normal_button(color, 'gray40', self._rect)
-            elif len(color) == 1:
-                self._image = normal_button(color[0], 'gray40', self._rect)
-            elif len(color) == 2:
-                self._image = normal_button(color[0], color[1], self._rect)
+            elif isinstance(color[0], (str, int, float, Vector)):
+                self._image = normal_button(color, 'gray40')
+            elif isinstance(color[0], (tuple, list)):
+                if len(color) == 1:
+                    self._image = normal_button(color[0], 'gray40', self._rect)
+                elif len(color) == 2:
+                    self._image = normal_button(color[0], color[1], self._rect)
+                else:
+                    print('Error: color in wrong format', color)
+                    self._image = normal_button('dodgerblue', 'gray40', self._rect)
             else:
                 print('Error: color in wrong format', color)
                 self._image = normal_button('dodgerblue', 'gray40', self._rect)
         elif style == 'box':
             if isinstance(color, (str, Vector)):
                 self._image = box_button(color, 'gray40', 70, self._rect)
-            elif len(color) == 1:
-                self._image = box_button(color[0], 'gray40', 70, self._rect)
-            elif len(color) == 2:
-                self._image = box_button(color[0], color[1], 70, self._rect)
-            elif len(color) == 3:
-                self._image = box_button(color[0], color[1], color[2], self._rect)
+            elif isinstance(color[0], (str, int, float, Vector)):
+                self._image = box_button(color, 'gray40')
+            elif isinstance(color[0], (tuple, list)):
+                if len(color) == 1:
+                    self._image = box_button(color[0], 'gray40', 70, self._rect)
+                elif len(color) == 2:
+                    self._image = box_button(color[0], color[1], 70, self._rect)
+                elif len(color) == 3:
+                    self._image = box_button(color[0], color[1], color[2], self._rect)
+                else:
+                    print('Error: color in wrong format', color)
+                    self._image = box_button('dodgerblue', 'gray40', 70, self._rect)
             else:
                 print('Error: color in wrong format', color)
                 self._image = box_button('dodgerblue', 'gray40', 70, self._rect)

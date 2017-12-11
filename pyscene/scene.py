@@ -72,13 +72,18 @@ class Screen:
 		os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 	# static
-	def init(caption, size, flags=0, depth=0):
+	def open(caption, size, flags=0, depth=0):
 		pygame.init()
 		Screen.size = size
 		Screen.current_scene = Scene()
 		pygame.display.set_caption(caption)
 		Screen.surface = pygame.display.set_mode(size, flags, depth)
 		Screen.clock = pygame.time.Clock()
+		Screen.running = False
+
+	# static
+	def close():
+		Screen.running = False
 
 	# static
 	def loop(start_scene=None, fps=60):
@@ -91,8 +96,9 @@ class Screen:
 				Screen.current_scene.timer._stop()
 				Screen.current_scene.drop()
 				Screen.current_scene = Screen.scenes[Screen.set_scene]
-				for key, (callback, pydata) in Screen.current_scene._bindings.events[pygame.MOUSEMOTION].items():
-					callback(None, key, pydata)
+				if Screen.current_scene._bindings.events.get(pygame.MOUSEMOTION, False):
+					for key, (callback, pydata) in Screen.current_scene._bindings.events[pygame.MOUSEMOTION].items():
+						callback(None, key, pydata)
 				Screen.current_scene.entrance()
 				Screen.current_scene.timer._time_elaspe()
 				Screen.set_scene = None

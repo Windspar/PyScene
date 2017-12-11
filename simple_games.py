@@ -25,7 +25,7 @@ class QuitScene(Scene):
 
     def push(self, button, pydata):
         if pydata:
-            Screen.running = False
+            Screen.close()
         else:
             Screen.set_scene = QuitScene.last_scene
 
@@ -597,7 +597,7 @@ class Puzzle(Quit, Scene):
 
 def main():
     Screen.center()
-    Screen.init('Simple Games', (800, 600))
+    Screen.open('Simple Games', (800, 600))
     Font.basic = pygame.font.Font(None, 36)
 
     Screen.scenes['Intro'] = Intro()

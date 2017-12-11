@@ -1,9 +1,20 @@
 date 12-11-2017
+-- button.py --
+fix graphic glitch
+
+-- scene.py --
+change Screen.init to Screen.open
+added Screen.close()
+
+-- twist.py --
+corrected misspelled variable
+
 rename PyScene to pyscene. python naming style.
 
 -- textbox.py --
 improve Textbox callback
 added set_text to Textbox
+fix graphic glitch
 
 date 12-10-2017
 -- twist.py --

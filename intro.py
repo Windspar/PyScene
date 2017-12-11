@@ -7,10 +7,10 @@ from pyscene import Scene, Screen, Font, Text, Button, Textbox, gradient
 class Quit:
     def event(self, event):
         if event.type == pygame.QUIT:
-            Screen.running = False
+            Screen.close()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                Screen.running = False
+                Screen.close()
 
 class Intro(Quit, Scene):
     def __init__(self):
@@ -165,7 +165,7 @@ class Colors(Quit, Scene):
 
 def main():
     Screen.center()
-    Screen.init('Welcome To PyScene', (800, 600))
+    Screen.open('Welcome To PyScene', (800, 600))
     # Setting fonts global through scene
     Font.basic = Font.load(36)
     Font.small = Font.load(24)
