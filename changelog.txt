@@ -1,4 +1,9 @@
 date 12-11-2017
+-- text.py --
+fix toggle
+fix blitting
+improve color formats
+
 -- button.py --
 fix graphic glitch
 

@@ -3,8 +3,8 @@ import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from widgets.widget import Widget
-from tool.point import Point
-from tool.gradient import apply_surface
+from pyscene.tool.point import Point, Vector
+import pyscene.tool.gradient as gradient
 
 # Text are static. Can be transform in Text Click.
 # Text can have a hilight color.
@@ -20,9 +20,25 @@ class TextInfo:
         if isinstance(color, str):
             self.color = pygame.Color(color)
         elif isinstance(color, (tuple, list)):
-            self.color = pygame.Color(*color)
+            if isinstance(color[0], (int, float)):
+                self.color = pygame.Color(*color)
+            elif isinstance(color[0], str):
+                if color[0] == 'v':
+                    self.color = gradient.vertical(color[1:])
+                elif color[0] == 'h':
+                    self.color = gradient.horizontal(color[1:])
+                else:
+                    self.color = gradient.vertical(color)
+            elif isinstance(color[0], Vector):
+                self.color = gradient.vertical(color)
+            else:
+                print("Wrong format !", color)
+                self.Color = pygame.Color('white')
         elif isinstance(color, pygame.Surface):
             self.color = color.convert_alpha()
+        else:
+            print("Wrong format !", color)
+            self.Color = pygame.Color('white')
 
 # color takes pygame.Color args or pygame.Surface
 class Text(Widget):
@@ -58,8 +74,9 @@ class Text(Widget):
                     self._parent.timer.start(self._key + 'timer__')
         elif self.enable:
             self._hover = self._rect.collidepoint(event.pos)
-            if self._info.get('blink', False) and self._hover:
-                self._parent.timer.stop(self._key + 'timer__')
+            if self._info.get('hover', False) and self._hover:
+                if self._info.get('blink', False):
+                    self._parent.timer.stop(self._key + 'timer__')
             else:
                 if self._info.get('blink', False):
                     if self._parent.timer[self._key + 'timer__'].stop:
@@ -80,6 +97,9 @@ class Text(Widget):
         self._render(self._info['hover'])
 
     def set_toggle(self, color):
+        if self._group is None:
+            self.allow_toggle = True
+
         if self._info.get('toggle', False):
             self._info['toggle'].set_color(color)
         else:
@@ -117,7 +137,7 @@ class Text(Widget):
         self._do_anchor()
 
         if isinstance(info.color, pygame.Surface):
-            info.image = apply_surface(surface, info.color)
+            info.image = gradient.apply_surface(surface, info.color)
             if self._angle is not None:
                 info.r_image = pygame.transform.rotate(info.image, self._angle)
                 self._r_rect = info.r_image.get_rect()
@@ -133,21 +153,14 @@ class Text(Widget):
         rect = [self._r_rect, self._rect][self._angle is None]
         attr = ['r_image', 'image'][self._angle is None]
 
-        if self._info.get('hover', False):
-            if self._group and self._toggle:
-                surface.blit(getattr(self._info['toggle'], attr), rect)
-            elif self._hover:
-                surface.blit(getattr(self._info['hover'], attr), rect)
-            else:
-                if self._info.get('blink', False) and self._info['blink'].blink:
-                    surface.blit(getattr(self._info['blink'], attr), rect)
-                else:
-                    surface.blit(getattr(self._info['base'], attr), rect)
+        if self._info.get('toggle', False) and self._toggle:
+            surface.blit(getattr(self._info['toggle'], attr), rect)
+        elif self._info.get('hover', False) and self._hover:
+            surface.blit(getattr(self._info['hover'], attr), rect)
+        elif self._info.get('blink', False) and self._info['blink'].blink:
+            surface.blit(getattr(self._info['blink'], attr), rect)
         else:
-            if self._info.get('blink', False) and self._info['blink'].blink:
-                surface.blit(getattr(self._info['blink'], attr), rect)
-            else:
-                surface.blit(getattr(self._info['base'], attr), rect)
+            surface.blit(getattr(self._info['base'], attr), rect)
 
     def _do_render(self):
         for key in self._info.keys():

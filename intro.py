@@ -2,7 +2,7 @@
 #                       This is my boiler plate
 
 import pygame
-from pyscene import Scene, Screen, Font, Text, Button, Textbox, gradient
+from pyscene import Scene, Screen, Font, Text, Button, Textbox
 
 class Quit:
     def event(self, event):
@@ -25,14 +25,14 @@ class Intro(Quit, Scene):
         Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
         Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
 
-        colorful_surface = gradient.vertical(('blue', 'red', 'wheat4', 'green', 'burlywood'))
-        Text(self, 'Colorful Text', mid, 400, Font.basic, colorful_surface)
-        colorful_surface = gradient.horizontal(('blue', 'red', 'wheat4', 'green', 'burlywood'))
-        Text(self, 'Colorful Text', mid, 440, Font.basic, colorful_surface)
+        colors = ('blue', 'red', 'wheat4', 'green', 'burlywood')
+        Text(self, 'Colorful Text', mid, 400, Font.basic, colors)
+        colors = ('h', 'blue', 'red', 'wheat4', 'green', 'burlywood')
+        Text(self, 'Colorful Text', mid, 440, Font.basic, colors)
         t = Text(self, 'Angle Text', 100, 500, Font.basic, 'dodgerblue')
         t.set_angle(45)
-        colorful_surface = gradient.horizontal(('white', 'snow', 'blue', 'snow', 'white'))
-        t.set_blink(colorful_surface, 1000, 400)
+        colors = ('h','white', 'snow', 'blue', 'snow', 'white')
+        t.set_blink(colors, 1000, 400)
 
         self.groups = [
             ("Group Example",
