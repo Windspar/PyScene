@@ -1,3 +1,7 @@
+date 12-12-2017
+-- textbox.py --
+fix couple of errors in Textbox
+
 date 12-11-2017
 -- text.py --
 fix toggle

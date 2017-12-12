@@ -91,7 +91,7 @@ class Textbox(Widget):
 
     def set_text(self, text):
         self._buffer = list(text)
-        self.text.set_text(text)
+        self.update_text()
 
     def make_button(self, color, style):
         if style == 'simple':
@@ -210,7 +210,7 @@ class Textbox(Widget):
             else:
                 if self._toggle:
                     if self.callback:
-                        self.callback(''.join(self._buffer))
+                        self.callback(self, ''.join(self._buffer))
                 self._toggle = False
                 if len(self._buffer) == 0:
                     self.text.set_text(self._ghost)
