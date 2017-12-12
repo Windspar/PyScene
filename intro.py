@@ -2,7 +2,7 @@
 #                       This is my boiler plate
 
 import pygame
-from pyscene import Scene, Screen, Font, Text, Button, Textbox
+from pyscene import Scene, Screen, Text, Button, Textbox
 
 class Quit:
     def event(self, event):
@@ -17,36 +17,36 @@ class Intro(Quit, Scene):
         Scene.__init__(self)
         mid = Screen.size[0] / 2
         # text is auto center
-        Text(self, 'Welcome To PyScene', mid, 20, Font.basic, 'dodgerblue')
+        Text(self, 'Welcome To PyScene', mid, 20, Scene.font.basic, 'dodgerblue')
         Button(self, "Push Me", (10,70,100,30), self.push)
 
-        Text(self, "Button Styles", 60, 150, Font.small, 'dodgerblue')
+        Text(self, "Button Styles", 60, 150, Scene.font.small, 'dodgerblue')
         Button(self, "Simple", (10,170,100,30), None, None, 'mistyrose') # simple is default
         Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
         Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
 
         colors = ('blue', 'red', 'wheat4', 'green', 'burlywood')
-        Text(self, 'Colorful Text', mid, 400, Font.basic, colors)
+        Text(self, 'Colorful Text', mid, 400, Scene.font.basic, colors)
         colors = ('h', 'blue', 'red', 'wheat4', 'green', 'burlywood')
-        Text(self, 'Colorful Text', mid, 440, Font.basic, colors)
-        t = Text(self, 'Angle Text', 100, 500, Font.basic, 'dodgerblue')
+        Text(self, 'Colorful Text', mid, 440, Scene.font.basic, colors)
+        t = Text(self, 'Angle Text', 100, 500, Scene.font.basic, 'dodgerblue')
         t.set_angle(45)
         colors = ('h','white', 'snow', 'blue', 'snow', 'white')
         t.set_blink(colors, 1000, 400)
 
         self.groups = [
             ("Group Example",
-            Text(self, "Text Group Example", mid, 100, Font.basic, 'wheat4')),
+            Text(self, "Text Group Example", mid, 100, Scene.font.basic, 'wheat4')),
             ("Colors",
-            Text(self, "Built In Colors", mid, 150, Font.basic, 'wheat4')),
+            Text(self, "Built In Colors", mid, 150, Scene.font.basic, 'wheat4')),
             ("GrayColors",
-            Text(self, "Built In Colors GrayScale", mid, 200, Font.basic, 'wheat4'))
+            Text(self, "Built In Colors GrayScale", mid, 200, Scene.font.basic, 'wheat4'))
             ]
         for data, text in self.groups:
             text.set_hilight('burlywood')
             text.set_callback(self.text_callback, data)
 
-        tb = Textbox(self, (mid - 125, 300, 250, 40), Font.basic)
+        tb = Textbox(self, (mid - 125, 300, 250, 40), Scene.font.basic)
         tb.set_ghost('Enter Name Here', 60)
 
     def push(self, button, pydata):
@@ -65,12 +65,12 @@ class GroupExample(Quit, Scene):
         Scene.__init__(self)
         mid = Screen.size[0] / 2
                 # text is auto center
-        self.intro = Text(self, 'Text Group Example', mid, 20, Font.basic, 'orange')
+        self.intro = Text(self, 'Text Group Example', mid, 20, Scene.font.basic, 'orange')
         self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
         self.texts = [
-            Text(self, 'Me First', mid, 200, Font.small, 'wheat4', 'me_group'),
-            Text(self, 'Pick Me', mid, 250, Font.small, 'wheat4', 'me_group'),
-            Text(self, 'Click Me', mid, 300, Font.small, 'wheat4', 'me_group')
+            Text(self, 'Me First', mid, 200, Scene.font.small, 'wheat4', 'me_group'),
+            Text(self, 'Pick Me', mid, 250, Scene.font.small, 'wheat4', 'me_group'),
+            Text(self, 'Click Me', mid, 300, Scene.font.small, 'wheat4', 'me_group')
         ]
 
         for t in self.texts:
@@ -91,7 +91,7 @@ class PushMe(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
         mid = Screen.size[0] / 2
-        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, Font.basic, 'red')
+        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, Scene.font.basic, 'red')
         self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
 
     def push(self, button, pydata):
@@ -105,7 +105,7 @@ class Colors(Quit, Scene):
         Scene.__init__(self)
         mid = Screen.size[0] / 2
         self.page = 1
-        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, Font.basic, 'snow')
+        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, Scene.font.basic, 'snow')
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
         self.back.text.set_color('dodgerblue')
         if grayscale:
@@ -119,7 +119,7 @@ class Colors(Quit, Scene):
         for i in range(100):
             y = i % 20 * 25 + 70
             x = int(i / 20) * 150 + 100
-            self.keys_group.append( Text(self, "None", x, y, Font.small, (0,0,0)) )
+            self.keys_group.append( Text(self, "None", x, y, Scene.font.small, (0,0,0)) )
         self.update_colors()
 
         prev = Button(self, 'Prev', (mid - 150, 560, 100, 30), self.prev_page, None, 'snow')
@@ -167,8 +167,8 @@ def main():
     Screen.center()
     Screen.open('Welcome To PyScene', (800, 600))
     # Setting fonts global through scene
-    Font.basic = Font.load(36)
-    Font.small = Font.load(24)
+    Scene.font.basic = pygame.font.Font(None, 36)
+    Scene.font.small = pygame.font.Font(None, 24)
     # store my scenes
     Screen.scenes['Intro'] = Intro()
     Screen.scenes['Colors'] = Colors()

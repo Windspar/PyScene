@@ -3,12 +3,7 @@ import pygame
 import pyscene.tick_timer as tick_timer
 
 class Font:
-	@staticmethod
-	def load(fontname, size=None):
-		if size is None:
-			return pygame.font.Font(None, fontname)
-		else:
-			return pygame.font.Font(fontname, size)
+	pass
 
 class Bindings:
 	def __init__(self):
@@ -19,6 +14,8 @@ class Bindings:
 
 # Scene flipping
 class Scene:
+	font = Font()
+	
 	def __init__(self):
 		self._bindings = Bindings()
 		self.timer = tick_timer.TickTimer(pygame.time.get_ticks())
