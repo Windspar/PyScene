@@ -1,5 +1,32 @@
 import pygame
+import tool.gradient as gradient
 from .point import Vector
+
+def color(color):
+    if isinstance(color, str):
+        return pygame.Color(color)
+    elif isinstance(color[0], Vector):
+        return pygame.Color(*color.tup_cast())
+    elif isinstance(color, (tuple, list)):
+        if isinstance(color[0], (int, float)):
+            return pygame.Color(*color)
+        elif isinstance(color[0], str):
+            if color[0] == 'v':
+                return gradient.vertical(color[1:])
+            elif color[0] == 'h':
+                return gradient.horizontal(color[1:])
+            else:
+                return gradient.vertical(color)
+        elif isinstance(color[0], Vector):
+            return gradient.vertical(color)
+        else:
+            print("Wrong format !", color)
+            return pygame.Color('white')
+    elif isinstance(color, pygame.Surface):
+        return color.convert_alpha()
+    else:
+        print("Wrong format !", color)
+        return pygame.Color('white')
 
 def make_color(color, shade, reverse, allow_dimmer, flow):
     color = Vector(color).cast()

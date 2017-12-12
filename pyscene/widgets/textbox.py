@@ -53,7 +53,7 @@ def box_textbox(color , disabled_color, alpha, objrect):
 
 class Carrot:
     def __init__(self, font, rect, color):
-        h = font.size("Ay")[1]
+        h = font.get_height()
         self.image = pygame.Surface((2, h))
         if isinstance(color, str):
             self.image.fill(pygame.Color(color))

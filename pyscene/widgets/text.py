@@ -5,6 +5,7 @@ sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from widgets.widget import Widget
 from pyscene.tool.point import Point, Vector
 import pyscene.tool.gradient as gradient
+from pyscene.tool import twist
 
 # Text are static. Can be transform in Text Click.
 # Text can have a hilight color.
@@ -14,31 +15,10 @@ class TextInfo:
     def __init__(self, color):
         self.image = None
         self.r_image = None
-        self.set_color(color)
+        self.color = twist.color(color)
 
     def set_color(self, color):
-        if isinstance(color, str):
-            self.color = pygame.Color(color)
-        elif isinstance(color, (tuple, list)):
-            if isinstance(color[0], (int, float)):
-                self.color = pygame.Color(*color)
-            elif isinstance(color[0], str):
-                if color[0] == 'v':
-                    self.color = gradient.vertical(color[1:])
-                elif color[0] == 'h':
-                    self.color = gradient.horizontal(color[1:])
-                else:
-                    self.color = gradient.vertical(color)
-            elif isinstance(color[0], Vector):
-                self.color = gradient.vertical(color)
-            else:
-                print("Wrong format !", color)
-                self.Color = pygame.Color('white')
-        elif isinstance(color, pygame.Surface):
-            self.color = color.convert_alpha()
-        else:
-            print("Wrong format !", color)
-            self.Color = pygame.Color('white')
+        self.color = twist.color(color)
 
 # color takes pygame.Color args or pygame.Surface
 class Text(Widget):
