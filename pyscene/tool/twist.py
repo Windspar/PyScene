@@ -3,7 +3,9 @@ import tool.gradient as gradient
 from .point import Vector
 
 def color(color):
-    if isinstance(color, str):
+    if isinstance(color, pygame.Color):
+        return color
+    elif isinstance(color, str):
         return pygame.Color(color)
     elif isinstance(color[0], Vector):
         return pygame.Color(*color.tup_cast())

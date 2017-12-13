@@ -4,9 +4,8 @@ sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 import pygame
 from widgets.widget import Widget, WidgetImage
 from widgets.text import Text
-from pyscene.tool import Vector
-import pyscene.tool.twist as twist
-import pyscene.tool.gradient as gradient
+from pyscene.tool import twist, gradient, Vector
+#import pyscene.tool.gradient as gradient
 
 def simple_textbox(color, disabled_color, objrect):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.7, False, False)
@@ -54,11 +53,12 @@ def box_textbox(color , disabled_color, alpha, objrect):
 class Carrot:
     def __init__(self, font, rect, color):
         h = font.get_height()
-        self.image = pygame.Surface((2, h))
-        if isinstance(color, str):
-            self.image.fill(pygame.Color(color))
+        color = twist.color(color)
+        if isinstance(color, pygame.Color):
+            self.image = pygame.Surface((2, h))
+            self.image.fill(color)
         else:
-            self.image.fill(pygame.Color(*color))
+            self.image = pygame.transform.scale(color, (2,h))
         self.pos = 0
         self.position = [rect.centerx, int(rect.y - ((rect.h - h) / 2))]
 
