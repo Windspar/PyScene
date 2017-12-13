@@ -2,6 +2,58 @@ import os
 import pygame
 import pyscene.tick_timer as tick_timer
 
+class Screen:
+	set_scene = None
+	running = False
+	scenes = {}
+
+	@classmethod
+	def add_scene(cls, scene, name=None):
+		if name is None:
+			name = type(scene).__name__
+		cls.scenes[name] = scene
+
+	@staticmethod
+	def center():
+		os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+	@classmethod
+	def open(cls, caption, size, flags=0, depth=0):
+		pygame.init()
+		cls.size = size
+		cls.current_scene = Scene()
+		pygame.display.set_caption(caption)
+		cls.surface = pygame.display.set_mode(size, flags, depth)
+		cls.clock = pygame.time.Clock()
+		cls.running = False
+
+	@classmethod
+	def close(cls):
+		cls.running = False
+
+	@classmethod
+	def loop(cls, start_scene=None, fps=60):
+		cls.fps = fps
+		cls.running = True
+		cls.set_scene = start_scene
+
+		while cls.running:
+			if cls.set_scene:
+				cls.current_scene.screen_drop()
+				cls.current_scene = cls.scenes[cls.set_scene]
+				cls.current_scene.screen_entrance()
+				cls.set_scene = None
+
+			for event in pygame.event.get():
+				cls.current_scene.screen_event(event)
+
+			cls.current_scene.screen_blit(cls.surface)
+
+			pygame.display.flip()
+			cls.clock.tick(Screen.fps)
+
+		pygame.quit()
+
 class Font:
 	pass
 
@@ -15,9 +67,12 @@ class Bindings:
 # Scene flipping
 class Scene:
 	font = Font()
-	
+	screen = Screen
+
 	def __init__(self):
 		self._bindings = Bindings()
+		# builtins
+		self.font = Scene.font
 		self.timer = tick_timer.TickTimer(pygame.time.get_ticks())
 
 	def entrance(self):
@@ -37,12 +92,28 @@ class Scene:
 		self._bindings.pid += 1
 		return self._bindings.pid
 
-	def _event(self, event):
+	def screen_entrance(self):
+		if self._bindings.events.get(pygame.MOUSEMOTION, False):
+			for key, (callback, pydata) in self._bindings.events[pygame.MOUSEMOTION].items():
+				callback(None, key, pydata)
+
+		self.entrance()
+		self.timer._time_elaspe()
+
+	def screen_drop(self):
+		self.timer._stop()
+		self.drop()
+
+	def screen_event(self, event):
+		self.event(event)
 		if self._bindings.events.get(event.type, None):
 			for key, (callback, pydata) in self._bindings.events[event.type].items():
 				callback(event, key, pydata)
 
-	def _blit(self, surface):
+		self.timer._update(pygame.time.get_ticks())
+
+	def screen_blit(self, surface):
+		self.blit(surface)
 		for key, callback in self._bindings.blits.items():
 			callback(surface)
 
@@ -59,56 +130,11 @@ class Scene:
 	def unbind_blit(self, key):
 		del self._bindings.blits[key]
 
-# static
-class Screen:
-	set_scene = None
-	running = False
-	scenes = {}
+	def add_scene(self, scene, name=None):
+		Scene.screen.add_scene(scene, name)
 
-	def center():
-		os.environ['SDL_VIDEO_CENTERED'] = '1'
+	def close_screen(self):
+		Scene.screen.running = False
 
-	# static
-	def open(caption, size, flags=0, depth=0):
-		pygame.init()
-		Screen.size = size
-		Screen.current_scene = Scene()
-		pygame.display.set_caption(caption)
-		Screen.surface = pygame.display.set_mode(size, flags, depth)
-		Screen.clock = pygame.time.Clock()
-		Screen.running = False
-
-	# static
-	def close():
-		Screen.running = False
-
-	# static
-	def loop(start_scene=None, fps=60):
-		Screen.fps = fps
-		Screen.running = True
-		Screen.set_scene = start_scene
-
-		while Screen.running:
-			if Screen.set_scene:
-				Screen.current_scene.timer._stop()
-				Screen.current_scene.drop()
-				Screen.current_scene = Screen.scenes[Screen.set_scene]
-				if Screen.current_scene._bindings.events.get(pygame.MOUSEMOTION, False):
-					for key, (callback, pydata) in Screen.current_scene._bindings.events[pygame.MOUSEMOTION].items():
-						callback(None, key, pydata)
-				Screen.current_scene.entrance()
-				Screen.current_scene.timer._time_elaspe()
-				Screen.set_scene = None
-
-			for event in pygame.event.get():
-				Screen.current_scene._event(event)
-				Screen.current_scene.event(event)
-
-			Screen.current_scene.timer._update(pygame.time.get_ticks())
-			Screen.current_scene.blit(Screen.surface)
-			Screen.current_scene._blit(Screen.surface)
-
-			pygame.display.flip()
-			Screen.clock.tick(Screen.fps)
-
-		pygame.quit()
+	def set_scene(self, scene):
+		Scene.screen.set_scene = scene
