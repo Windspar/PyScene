@@ -76,9 +76,10 @@ class Button(Widget):
 
         if isinstance(text, Text):
             self.text = text
-            self.text.set_position(self._rect.center)
+            self.text.set_center(self._rect.center)
         else:
             self.text = Text(parent, text, *self._rect.center, allow_bindings=False)
+            self.text.set_center()
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEBUTTONUP, self._key + 'up__', self.event_mousebuttonup)

@@ -51,7 +51,7 @@ def box_textbox(color , disabled_color, alpha, objrect):
 
 
 class Carrot:
-    def __init__(self, font, rect, color):
+    def __init__(self, font, x, y, color):
         h = font.get_height()
         color = twist.color(color)
         if isinstance(color, pygame.Color):
@@ -60,16 +60,19 @@ class Carrot:
         else:
             self.image = pygame.transform.scale(color, (2,h))
         self.pos = 0
-        self.position = [rect.centerx, int(rect.y - ((rect.h - h) / 2))]
+        self.position = [x, int(y - (h / 2))]
 
 class Textbox(Widget):
     def __init__(self, parent, rect, font=None, color='white', callback=None, image='steelblue', style='simple', allow_bindings=True):
         Widget.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
-        self.text = Text(parent, "Textbox", *self._rect.center, font, color, allow_bindings=False)
+        x = self._rect.x + 6
+        y = self._rect.centery
+        self.text = Text(parent, "Textbox", x, y, font, color, allow_bindings=False)
+        self.text.set_left()
         twist.ghost(self.text._info['base'].image, 60)
         self._buffer = []
         self.callback = callback
-        self._carrot = Carrot(self.text._font, self.text._rect, color)
+        self._carrot = Carrot(self.text._font, x, y, color)
         self._ghost = 'Textbox'
         self._ghost_alpha = 60
 
@@ -147,23 +150,30 @@ class Textbox(Widget):
         font = self.text._font
         if length == 0:
             self.text.set_text('')
-            self._carrot.position[0] = self.text._rect.centerx
+            if self.text._anchor == Widget.CENTER:
+                self._carrot.position[0] = self.text._rect.centerx
+            elif self.text._anchor in (Widget.TOPLEFT, Widget.LEFT):
+                self._carrot.position[0] = self.text._rect.x
         else:
             left, right = 0 , length
             while font.size(text[left:right])[0] > self._rect.w - 10:
                 if self._carrot.pos - left > right - self._carrot.pos:
                     left += 1
-                elif self._carrot.pos - left < right - self._carrot.pos:
+                elif self._carrot.pos - left < right - self._carrot.pos + 1:
                     right -= 1
                 else:
                     left += 1
                     right -= 1
 
             self.text.set_text(text[left:right])
-            x = self.text._rect.centerx
-            # Text is Center so adjust for it
-            x -= (font.size(text[left:right])[0] / 2)
-            self._carrot.position[0] = x + font.size(text[left:self._carrot.pos])[0]
+            if self.text._anchor == Widget.CENTER:
+                x = self.text._rect.centerx
+                # Text is Center so adjust for it
+                x -= (font.size(text[left:right])[0] / 2)
+                self._carrot.position[0] = x + font.size(text[left:self._carrot.pos])[0]
+            elif self.text._anchor in (Widget.TOPLEFT, Widget.LEFT):
+                x = self.text._rect.x
+                self._carrot.position[0] = x + font.size(text[left:self._carrot.pos])[0]
 
     def event_keydown(self, event, key, pydata):
         if pygame.key.get_repeat() == (0,0):
@@ -217,3 +227,21 @@ class Textbox(Widget):
                     twist.ghost(self.text._info['base'].image, self._ghost_alpha)
 
                 pygame.key.set_repeat()
+
+    def set_position(self, x, y=None):
+        Widget.set_position(self, x, y)
+        if self.text._anchor == Widget.CENTER:
+            self.text.set_position(self._rect.center)
+        elif self.text._anchor == Widget.TOPLEFT:
+            self.text.set_position(self._rect.topleft)
+        elif self.text._anchor == Widget.LEFT:
+            self.text.set_position(self._rect.x, self._rect.centery)
+
+    def text_center(self):
+        self.text.set_center(self._rect.center)
+
+    def text_topleft(self):
+        self.text.set_topleft(self._rect.topleft)
+
+    def text_left(self):
+        self.text.set_left(self._rect.x, self._rect.centery)

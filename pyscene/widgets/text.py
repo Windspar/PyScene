@@ -23,7 +23,7 @@ class TextInfo:
 # color takes pygame.Color args or pygame.Surface
 class Text(Widget):
     def __init__(self, parent, text, x, y, font=None, color='white', group=None, callback=None, pydata=None, allow_bindings=True):
-        Widget.__init__(self, parent, None, 'Text', group, allow_bindings)
+        Widget.__init__(self, parent, (x,y), 'Text', group, allow_bindings)
         if font is None:
             self._font = pygame.font.Font(None, 24)
         else:
@@ -31,8 +31,6 @@ class Text(Widget):
 
         self._info = {'base': TextInfo(color)}
         self._text = text
-        self._anchor = 'center'
-        self._position = Point(x, y)
         self._angle = None
         self._r_rect = None
         self._render(self._info['base'])
@@ -114,7 +112,7 @@ class Text(Widget):
         else:
             surface = self._font.render(self._text, 1, info.color)
         self._rect = surface.get_rect()
-        self._do_anchor()
+        self._anchor_position()
 
         if isinstance(info.color, pygame.Surface):
             info.image = gradient.apply_surface(surface, info.color)
@@ -158,30 +156,14 @@ class Text(Widget):
         self._info['base'].set_color(color)
         self._render(self._info['base'])
 
-    # handles Point, tuple, list, (x, y)
-    def set_position(self, point, y=None):
-        if y is None:
-            if isinstance(point, (tuple, list)):
-                self._position = Point(*point)
-            elif isinstance(point, Point):
-                self._position = point
-        self.position = Point(point, y)
-        self._do_anchor()
+    def set_position(self, x, y=None):
+        Widget.set_position(self, x, y)
+        if self._r_rect:
+            self._anchor_position(self_r_rect)
 
     def set_angle(self, angle):
         self._angle = angle
         self._do_render()
-
-    def set_anchor(self, pystr):
-        self._anchor = pystr
-        self._do_anchor()
-
-    def _do_anchor(self):
-        if self._anchor == 'center':
-            self._rect.center = self._position.tup()
-        elif self_anchor == 'left':
-            self._rect.left = self._position.x
-            self._rect.centery = self._position.y
 
     def __repr__(self):
         return "Text({0})".format(self._text)

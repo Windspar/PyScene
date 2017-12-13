@@ -1,4 +1,8 @@
 import pygame
+import os
+import sys
+sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
+from pyscene.tool import Point
 
 class WidgetImage:
     def __init__(self, base, hover, toggle, disabled):
@@ -14,6 +18,10 @@ class WidgetImage:
             self.disabled = pygame.transform.scale(self.disabled, size)
 
 class Widget:
+    CENTER = 0
+    LEFT = 1
+    TOPLEFT = 2
+
     def __init__(self, parent, rect, classname, group, allow_bindings):
         self.allow_toggle = False
         self.enable = True
@@ -26,12 +34,15 @@ class Widget:
         if group:
             parent._bind_group(self._group, self._key, self)
 
-        if rect is None:
+        if isinstance(rect, pygame.Rect):
             self._rect = rect
-        elif isinstance(rect, pygame.Rect):
-            self._rect = rect
+        elif len(rect) == 2:
+            self._rect = pygame.Rect(*rect, 1, 1)
         else:
             self._rect = pygame.Rect(*rect)
+
+        self._position = Point(self._rect.topleft)
+        self._anchor = Widget.TOPLEFT
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEMOTION, self._key + 'm_motion__', self.event_mousemotion)
@@ -64,3 +75,41 @@ class Widget:
 
     def get_key(self):
         return self._key
+
+    def set_position(self, x, y=None):
+        if y is None:
+            if isinstance(x, Point):
+                self._position = x
+            elif x:
+                self._position = Point(x)
+        else:
+            self._position = Point(x, y)
+
+        self._anchor_position()
+
+    def set_center(self, x=None, y=None):
+        self._anchor = Widget.CENTER
+        self.set_position(x,y)
+        return self
+
+    def set_topleft(self, x=None, y=None):
+        self._anchor = Widget.TOPLEFT
+        self.set_position(x,y)
+        return self
+
+    def set_left(self, x=None, y=None):
+        self._anchor = Widget.LEFT
+        self.set_position(x,y)
+        return self
+
+    def _anchor_position(self, rect=None):
+        if rect is None:
+            rect = self._rect
+
+        if self._anchor == Widget.CENTER:
+            rect.center = self._position.tup_cast()
+        elif self._anchor == Widget.TOPLEFT:
+            rect.topleft = self._position.tup_cast()
+        elif self._anchor == Widget.LEFT:
+            rect.x = int(self._position.x)
+            rect.centery = int(self._position.y)
