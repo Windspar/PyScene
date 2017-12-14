@@ -138,3 +138,6 @@ class Scene:
 
 	def set_scene(self, scene):
 		Scene.screen.set_scene = scene
+
+	def del_scene(self, scene):
+		del Scene.screen.scenes[scene]

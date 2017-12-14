@@ -2,10 +2,9 @@ import pygame
 import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
-from widgets.widget import Widget
+from .objects import PySceneObject
 from pyscene.tool.point import Point, Vector
-import pyscene.tool.gradient as gradient
-from pyscene.tool import twist
+from pyscene.tool import gradient, twist
 
 # Text are static. Can be transform in Text Click.
 # Text can have a hilight color.
@@ -21,9 +20,9 @@ class TextInfo:
         self.color = twist.color(color)
 
 # color takes pygame.Color args or pygame.Surface
-class Text(Widget):
+class Text(PySceneObject):
     def __init__(self, parent, text, x, y, font=None, color='white', group=None, callback=None, pydata=None, allow_bindings=True):
-        Widget.__init__(self, parent, (x,y), 'Text', group, allow_bindings)
+        PySceneObject.__init__(self, parent, (x,y), 'Text', group, allow_bindings)
         if font is None:
             self._font = pygame.font.Font(None, 24)
         else:
@@ -61,7 +60,7 @@ class Text(Widget):
                         self._parent.timer.start(self._key + 'timer__')
 
     def event_mousebuttondown(self, event, key, pydata):
-        Widget.event_mousebuttondown(self, event, key, pydata)
+        PySceneObject.event_mousebuttondown(self, event, key, pydata)
 
         if event.button == 1:
             if self.callback and self._hover:
@@ -157,7 +156,7 @@ class Text(Widget):
         self._render(self._info['base'])
 
     def set_position(self, x, y=None):
-        Widget.set_position(self, x, y)
+        PySceneObject.set_position(self, x, y)
         if self._r_rect:
             self._anchor_position(self_r_rect)
 

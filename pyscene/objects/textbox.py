@@ -2,8 +2,8 @@ import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 import pygame
-from widgets.widget import Widget, WidgetImage
-from widgets.text import Text
+from .objects import PySceneObject, PySceneImage
+from .text import Text
 from pyscene.tool import twist, gradient, Vector
 #import pyscene.tool.gradient as gradient
 
@@ -20,7 +20,7 @@ def simple_textbox(color, disabled_color, objrect):
         back.blit(front, (4,4))
         return back
 
-    return WidgetImage(
+    return PySceneImage(
         overlay(dim, dimr, rect, objrect),
         overlay(dim, brightr, rect, objrect),
         overlay(dim, dimr, rect, objrect),
@@ -43,7 +43,7 @@ def box_textbox(color , disabled_color, alpha, objrect):
         pygame.draw.rect(surface, fg.tup_cast(), rect, 1)
         return surface
 
-    return WidgetImage(
+    return PySceneImage(
         overlay(dim[0], bright[0], rect, objrect, alpha),
         overlay(bright[0], bright[0], rect, objrect, alpha),
         overlay(dark[0], bright[0], rect, objrect, alpha),
@@ -62,9 +62,9 @@ class Carrot:
         self.pos = 0
         self.position = [x, int(y - (h / 2))]
 
-class Textbox(Widget):
+class Textbox(PySceneObject):
     def __init__(self, parent, rect, font=None, color='white', callback=None, image='steelblue', style='simple', allow_bindings=True):
-        Widget.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
+        PySceneObject.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
         x = self._rect.x + 6
         y = self._rect.centery
         self.text = Text(parent, "Textbox", x, y, font, color, allow_bindings=False)
@@ -150,9 +150,9 @@ class Textbox(Widget):
         font = self.text._font
         if length == 0:
             self.text.set_text('')
-            if self.text._anchor == Widget.CENTER:
+            if self.text._anchor == PySceneObject.CENTER:
                 self._carrot.position[0] = self.text._rect.centerx
-            elif self.text._anchor in (Widget.TOPLEFT, Widget.LEFT):
+            elif self.text._anchor in (PySceneObject.TOPLEFT, PySceneObject.LEFT):
                 self._carrot.position[0] = self.text._rect.x
         else:
             left, right = 0 , length
@@ -166,12 +166,12 @@ class Textbox(Widget):
                     right -= 1
 
             self.text.set_text(text[left:right])
-            if self.text._anchor == Widget.CENTER:
+            if self.text._anchor == PySceneObject.CENTER:
                 x = self.text._rect.centerx
                 # Text is Center so adjust for it
                 x -= (font.size(text[left:right])[0] / 2)
                 self._carrot.position[0] = x + font.size(text[left:self._carrot.pos])[0]
-            elif self.text._anchor in (Widget.TOPLEFT, Widget.LEFT):
+            elif self.text._anchor in (PySceneObject.TOPLEFT, PySceneObject.LEFT):
                 x = self.text._rect.x
                 self._carrot.position[0] = x + font.size(text[left:self._carrot.pos])[0]
 
@@ -229,12 +229,12 @@ class Textbox(Widget):
                 pygame.key.set_repeat()
 
     def set_position(self, x, y=None):
-        Widget.set_position(self, x, y)
-        if self.text._anchor == Widget.CENTER:
+        PySceneObject.set_position(self, x, y)
+        if self.text._anchor == PySceneObject.CENTER:
             self.text.set_position(self._rect.center)
-        elif self.text._anchor == Widget.TOPLEFT:
+        elif self.text._anchor == PySceneObject.TOPLEFT:
             self.text.set_position(self._rect.topleft)
-        elif self.text._anchor == Widget.LEFT:
+        elif self.text._anchor == PySceneObject.LEFT:
             self.text.set_position(self._rect.x, self._rect.centery)
 
     def text_center(self):

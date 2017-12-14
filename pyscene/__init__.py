@@ -1,3 +1,3 @@
 from pyscene.scene import *
-from pyscene.widgets import *
+from pyscene.objects import *
 from pyscene.tool import *

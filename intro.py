@@ -52,7 +52,7 @@ class Intro(Quit, Scene):
 
     def push(self, button, pydata):
         # let switch scene
-        self.set_scene("Push Me")
+        self.set_scene("PushMe")
 
     def text_callback(self, text, pydata):
         self.set_scene(pydata)

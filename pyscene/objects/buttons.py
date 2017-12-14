@@ -2,15 +2,15 @@ import pygame
 import os
 import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
-from .widget import Widget, WidgetImage
+from .objects import PySceneObject, PySceneImage
+from .text import Text
 from pyscene.tool import gradient, twist
 from pyscene.tool.point import Vector, Point
-from .text import Text
 
 def simple_button(color, disabled_color):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color)
 
-    return WidgetImage(
+    return PySceneImage(
         gradient.vertical(dim),
         gradient.vertical(bright),
         gradient.vertical(dark),
@@ -33,7 +33,7 @@ def box_button(color, disabled_color, alpha, objrect):
         pygame.draw.rect(surface, fg.tup_cast(), rect, 1)
         return surface
 
-    return WidgetImage(
+    return PySceneImage(
         overlay(dim[0], bright[0], rect, objrect, alpha),
         overlay(bright[0], bright[0], rect, objrect, alpha),
         overlay(dark[0], bright[0], rect, objrect, alpha),
@@ -55,16 +55,15 @@ def normal_button(color, disabled_color, rect):
         pygame.draw.rect(back, (0,0,0), rect, 1)
         return back
 
-    return WidgetImage(
+    return PySceneImage(
         overlay(dim, dimr, rect),
         overlay(bright, dimr, rect),
         overlay(dark, dimr, rect),
         overlay(dcolor, dcolorr, rect))
 
-class Button(Widget):
-    # text = PyScene.widgets.text.Text or string
+class Button(PySceneObject):
     def __init__(self, parent, text, rect, callback, pydata=None, image='dodgerblue', group=None, style='simple', allow_bindings=True):
-        Widget.__init__(self, parent, rect, 'Button', group, allow_bindings)
+        PySceneObject.__init__(self, parent, rect, 'Button', group, allow_bindings)
         self.callback = callback
         self.pydata = pydata
 
@@ -170,7 +169,7 @@ class ToggleButton(Button):
             parent.unbind_event(pygame.MOUSEBUTTONUP, self._key + 'up__')
 
     def event_mousebuttondown(self, event, key, pydata):
-        Widget.event_mousebuttondown(self, event, key, pydata)
+        PySceneObject.event_mousebuttondown(self, event, key, pydata)
 
         if event.button == 1:
             if self.callback and self._hover:

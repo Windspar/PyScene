@@ -18,21 +18,20 @@ class QuitScene(Scene):
     def __init__(self):
         Scene.__init__(self)
         midx, midy = tuple(map(int, (Point(*Screen.size) / 2).tup()))
-        Text(self, "Do you really want to leave ?", midx, midy - 50, Scene.font.basic, 'mediumorchid1').set_center()
+        Text(self, "Do you really want to leave ?", midx, midy - 50, self.font.basic, 'mediumorchid1').set_center()
         Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
         Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
         self.rect = pygame.Rect(midx - 175, midy - 80, 355, 120)
 
     def push(self, button, pydata):
         if pydata:
-            Screen.close()
+            self.close_screen()
         else:
-            Screen.set_scene = QuitScene.last_scene
+            self.set_scene(QuitScene.last_scene)
 
     def blit(self, surface):
         if QuitScene.last_scene:
-            Screen.scenes[QuitScene.last_scene].blit(surface)
-            Screen.scenes[QuitScene.last_scene]._blit(surface)
+            Screen.scenes[QuitScene.last_scene].screen_blit(surface)
         else:
             surface.fill((40,0,0))
 

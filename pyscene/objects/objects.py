@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from pyscene.tool import Point
 
-class WidgetImage:
+class PySceneImage:
     def __init__(self, base, hover, toggle, disabled):
         self.base = base
         self.hover = hover
@@ -17,7 +17,7 @@ class WidgetImage:
             self.toggle = pygame.transform.scale(self.toggle, size)
             self.disabled = pygame.transform.scale(self.disabled, size)
 
-class Widget:
+class PySceneObject:
     CENTER = 0
     LEFT = 1
     TOPLEFT = 2
@@ -29,7 +29,7 @@ class Widget:
         self._group = group
         self._toggle = False
         self._hover = False
-        self._key = '__widget_{0}_{1}__'.format(classname, parent._get_pid())
+        self._key = '__object_{0}_{1}__'.format(classname, parent._get_pid())
 
         if group:
             parent._bind_group(self._group, self._key, self)
@@ -42,7 +42,7 @@ class Widget:
             self._rect = pygame.Rect(*rect)
 
         self._position = Point(self._rect.topleft)
-        self._anchor = Widget.TOPLEFT
+        self._anchor = PySceneObject.TOPLEFT
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEMOTION, self._key + 'm_motion__', self.event_mousemotion)
@@ -88,17 +88,17 @@ class Widget:
         self._anchor_position()
 
     def set_center(self, x=None, y=None):
-        self._anchor = Widget.CENTER
+        self._anchor = PySceneObject.CENTER
         self.set_position(x,y)
         return self
 
     def set_topleft(self, x=None, y=None):
-        self._anchor = Widget.TOPLEFT
+        self._anchor = PySceneObject.TOPLEFT
         self.set_position(x,y)
         return self
 
     def set_left(self, x=None, y=None):
-        self._anchor = Widget.LEFT
+        self._anchor = PySceneObject.LEFT
         self.set_position(x,y)
         return self
 
@@ -106,10 +106,10 @@ class Widget:
         if rect is None:
             rect = self._rect
 
-        if self._anchor == Widget.CENTER:
+        if self._anchor == PySceneObject.CENTER:
             rect.center = self._position.tup_cast()
-        elif self._anchor == Widget.TOPLEFT:
+        elif self._anchor == PySceneObject.TOPLEFT:
             rect.topleft = self._position.tup_cast()
-        elif self._anchor == Widget.LEFT:
+        elif self._anchor == PySceneObject.LEFT:
             rect.x = int(self._position.x)
             rect.centery = int(self._position.y)
