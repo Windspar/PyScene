@@ -110,9 +110,8 @@ class Scene:
 			for key, (callback, pydata) in self._bindings.events[event.type].items():
 				callback(event, key, pydata)
 
-		self.timer._update(pygame.time.get_ticks())
-
 	def screen_blit(self, surface):
+		self.timer._update(pygame.time.get_ticks())
 		self.blit(surface)
 		for key, callback in self._bindings.blits.items():
 			callback(surface)
