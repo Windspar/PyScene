@@ -4,18 +4,18 @@
 import pygame
 from pyscene import Scene, Screen, Text, Button, Textbox
 
-class Quit:
+class Quit(Scene):
     def event(self, event):
         if event.type == pygame.QUIT:
-            Screen.close()
+            self.close_screen()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                Screen.close()
+                self.close_screen()
 
-class Intro(Quit, Scene):
+class Intro(Quit):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.screen_centerx()
         # text is auto center
         Text(self, 'Welcome To PyScene', mid, 20, self.font.basic, 'dodgerblue').set_center()
         Button(self, "Push Me", (10,70,100,30), self.push)
@@ -61,10 +61,10 @@ class Intro(Quit, Scene):
     def blit(self, surface):
         surface.fill((0,0,30))
 
-class GroupExample(Quit, Scene):
+class GroupExample(Quit):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.screen_centerx()
                 # text is auto center
         self.intro = Text(self, 'Text Group Example', mid, 20, self.font.basic, 'orange').set_center()
         self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
@@ -89,10 +89,10 @@ class GroupExample(Quit, Scene):
     def entrance(self):
         self.texts[0].set_focus()
 
-class PushMe(Quit, Scene):
+class PushMe(Quit):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.screen_centerx()
         self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, self.font.basic, 'red').set_center()
         self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
 
@@ -102,10 +102,10 @@ class PushMe(Quit, Scene):
     def blit(self, surface):
         surface.fill((30,0,0))
 
-class Colors(Quit, Scene):
+class Colors(Quit):
     def __init__(self, grayscale=False):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.screen_centerx()
         self.page = 1
         self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, self.font.basic, 'snow').set_center()
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
