@@ -129,6 +129,15 @@ class Scene:
 	def unbind_blit(self, key):
 		del self._bindings.blits[key]
 
+	def get_screensize(self):
+		return Scene.screen.size
+
+	def get_screenrect(self):
+		return pygame.Rect(0, 0, *Scene.screen.size)
+
+	def get_screenmid(self):
+		return Scene.screen.size[0] / 2, Scene.screen.size[1] / 2
+
 	def add_scene(self, scene, name=None):
 		Scene.screen.add_scene(scene, name)
 
