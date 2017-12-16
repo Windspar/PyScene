@@ -1,11 +1,8 @@
-import os
-import sys
-sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
+
 import pygame
-from .objects import PySceneObject, PySceneImage
-from .text import Text
+from pyscene.objects import PySceneObject, PySceneImage
+from pyscene.text import Text
 from pyscene.tool import twist, gradient, Vector
-#import pyscene.tool.gradient as gradient
 
 def simple_textbox(color, disabled_color, objrect):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.7, False, False)
@@ -132,7 +129,9 @@ class Textbox(PySceneObject):
                 print('Error: color in wrong format', color)
                 self._image = box_textbox('dodgerblue', 'gray40', 70, self._rect)
 
-    def blit(self, surface):
+    def blit(self, surface, position=None):
+        rect = self._draw_rect(self._rect, position)
+
         if not self.enable:
             surface.blit(self._image.disabled, self._rect)
         elif self._hover and not self._toggle:
@@ -140,7 +139,7 @@ class Textbox(PySceneObject):
         else:
             surface.blit(self._image.base, self._rect)
 
-        self.text.blit(surface)
+        self.text.blit(surface, position)
         if self._toggle:
             surface.blit(self._carrot.image, self._carrot.position)
 

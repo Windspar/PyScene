@@ -1,8 +1,5 @@
 import pygame
-import os
-import sys
-sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
-from .objects import PySceneObject
+from pyscene.objects import PySceneObject
 from pyscene.tool.point import Point, Vector
 from pyscene.tool import gradient, twist
 
@@ -37,7 +34,7 @@ class Text(PySceneObject):
         self.pydata = pydata
 
         if allow_bindings:
-            parent.bind_blit(self._key, self.blit)
+            parent.bind_blit(self._key + 'blit__', self.blit)
 
     def set_callback(self, callback, pydata=None):
         self.callback = callback
@@ -126,8 +123,9 @@ class Text(PySceneObject):
                 self._r_rect = info.r_image.get_rect()
                 self._r_rect.center = self._rect.center
 
-    def blit(self, surface):
+    def blit(self, surface, position=None):
         rect = [self._r_rect, self._rect][self._angle is None]
+        rect = self._draw_rect(rect, position)
         attr = ['r_image', 'image'][self._angle is None]
 
         if self._info.get('toggle', False) and self._toggle:

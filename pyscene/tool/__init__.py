@@ -1,4 +1,4 @@
 
-import tool.gradient
-import tool.twist
-from .point import Point, Vector
+import pyscene.tool.gradient
+import pyscene.tool.twist
+from pyscene.tool.point import Point, Vector

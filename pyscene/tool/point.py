@@ -49,6 +49,11 @@ class Point:
     def __truediv__(self, point):
         return self.overload(operator.truediv, point)
 
+    def __eq__(self, point):
+        if isinstance(point, (tuple, list)):
+            return self.x == point[0] and self.y == point[1]
+        return self.x == point.x and self.y == point.y
+
     def __repr__(self):
         return "Point({0}, {1}))".format(self.x, self.y)
 
@@ -120,6 +125,11 @@ class Vector:
 
     def __truediv__(self, vector):
         return self.overload(operator.truediv, vector)
+
+    def __eq__(self, vector):
+        if isinstance(point, (tuple, list)):
+            return self.x == vector[0] and self.y == vector[1] and self.z == vector[2]
+        return self.x == vector.x and self.y == vector.y and self.z == vector.z
 
     def __repr__(self):
         return "Vector({0}, {1}, {2})".format(self.x, self.y, self.z)

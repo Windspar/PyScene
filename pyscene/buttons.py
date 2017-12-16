@@ -1,9 +1,6 @@
 import pygame
-import os
-import sys
-sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
-from .objects import PySceneObject, PySceneImage
-from .text import Text
+from pyscene.objects import PySceneObject, PySceneImage
+from pyscene.text import Text
 from pyscene.tool import gradient, twist
 from pyscene.tool.point import Vector, Point
 
@@ -73,11 +70,12 @@ class Button(PySceneObject):
             self._image = image
             self._image.scale(self._rect.size)
 
+        drect = self._draw_rect(self._rect, self._parent.get_position())
         if isinstance(text, Text):
             self.text = text
-            self.text.set_center(self._rect.center)
+            self.text.set_center(drect.center)
         else:
-            self.text = Text(parent, text, *self._rect.center, allow_bindings=False)
+            self.text = Text(parent, text, *drect.center, allow_bindings=False)
             self.text.set_center()
 
         if allow_bindings:
@@ -138,18 +136,20 @@ class Button(PySceneObject):
 
         self._image.scale(self._rect.size)
 
-    def blit(self, surface):
+    def blit(self, surface, position=None):
+        rect = self._draw_rect(self._rect, position)
+
         if self.enable:
             if self._toggle:
-                surface.blit(self._image.toggle, self._rect)
+                surface.blit(self._image.toggle, rect)
             elif self._hover:
-                surface.blit(self._image.hover, self._rect)
+                surface.blit(self._image.hover, rect)
             else:
-                surface.blit(self._image.base, self._rect)
+                surface.blit(self._image.base, rect)
         else:
-            surface.blit(self._image.disabled, self._rect)
+            surface.blit(self._image.disabled, rect)
 
-        self.text.blit(surface)
+        self.text.blit(surface, position)
 
     def event_mousebuttonup(self, event, key, pydata):
         if event.button == 1:

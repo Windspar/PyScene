@@ -1,5 +1,5 @@
 import pygame
-from .point import Vector
+from pyscene.tool.point import Vector
 
 # source needs to be in alpha
 def apply_surface(source, gradient):

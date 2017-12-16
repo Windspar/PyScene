@@ -1,7 +1,4 @@
 import pygame
-import os
-import sys
-sys.path.append(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])
 from pyscene.tool import Point
 
 class PySceneImage:
@@ -41,6 +38,7 @@ class PySceneObject:
         else:
             self._rect = pygame.Rect(*rect)
 
+        self._rect_offset()
         self._position = Point(self._rect.topleft)
         self._anchor = PySceneObject.TOPLEFT
 
@@ -76,6 +74,20 @@ class PySceneObject:
     def get_key(self):
         return self._key
 
+    def _rect_offset(self):
+        position = self._parent.get_position()
+        self._rect.x += position[0]
+        self._rect.y += position[1]
+
+    def _draw_rect(self, rect, position):
+        if position is None:
+            return rect
+        else:
+            nrect = rect.copy()
+            nrect.x -= position[0]
+            nrect.y -= position[1]
+            return nrect
+
     def set_position(self, x, y=None):
         if y is None:
             if isinstance(x, Point):
@@ -85,6 +97,7 @@ class PySceneObject:
         else:
             self._position = Point(x, y)
 
+        self._rect_offset()
         self._anchor_position()
 
     def set_center(self, x=None, y=None):

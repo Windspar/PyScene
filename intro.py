@@ -2,21 +2,44 @@
 #                       This is my boiler plate
 
 import pygame
-from pyscene import Scene, Screen, Text, Button, Textbox
+from pyscene import Scene, Screen, Scenery, Text, Button, Textbox
 
 class Quit(Scene):
+    def __init__(self):
+        Scene.__init__(self)
+        self.add_scenery(QuitScenery(self), 'Quit')
+
     def event(self, event):
         if event.type == pygame.QUIT:
-            self.close_screen()
+            self.show_scenery('Quit')
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.close_screen()
+                self.show_scenery('Quit')
+
+class QuitScenery(Scenery):
+    def __init__(self, parent):
+        center = parent.get_center()
+        position = center[0] - 150, center[1] - 60
+        Scenery.__init__(self, position, (300,120), False, False)
+        mid = self.get_center() # PySceneObject need screen position
+        Text(self, 'Confirm Quit', mid[0], 40, self.font.basic, 'mediumorchid').set_center()
+        Button(self, 'Yes', (mid[0] - 100, mid[1] + 20, 80, 34), self.push_confirm, True, 'red')
+        Button(self, 'No', (mid[0] + 20, mid[1] + 20, 80, 34), self.push_confirm, False, 'green')
+
+    def push_confirm(self, button, pydata):
+        if pydata:
+            self.close_screen()
+        else:
+            self.show = False
+
+    def blit(self, surface):
+        surface.fill(pygame.Color('mediumorchid4'))
 
 class Intro(Quit):
     def __init__(self):
-        Scene.__init__(self)
-        mid = self.screen_centerx()
-        # text is auto center
+        #Scene.__init__(self)
+        Quit.__init__(self)
+        mid = self.get_centerx()
         Text(self, 'Welcome To PyScene', mid, 20, self.font.basic, 'dodgerblue').set_center()
         Button(self, "Push Me", (10,70,100,30), self.push)
 
@@ -63,8 +86,9 @@ class Intro(Quit):
 
 class GroupExample(Quit):
     def __init__(self):
-        Scene.__init__(self)
-        mid = self.screen_centerx()
+        #Scene.__init__(self)
+        Quit.__init__(self)
+        mid = self.get_centerx()
                 # text is auto center
         self.intro = Text(self, 'Text Group Example', mid, 20, self.font.basic, 'orange').set_center()
         self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
@@ -91,8 +115,9 @@ class GroupExample(Quit):
 
 class PushMe(Quit):
     def __init__(self):
-        Scene.__init__(self)
-        mid = self.screen_centerx()
+        #Scene.__init__(self)
+        Quit.__init__(self)
+        mid = self.get_centerx()
         self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, self.font.basic, 'red').set_center()
         self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
 
@@ -104,8 +129,9 @@ class PushMe(Quit):
 
 class Colors(Quit):
     def __init__(self, grayscale=False):
-        Scene.__init__(self)
-        mid = self.screen_centerx()
+        #Scene.__init__(self)
+        Quit.__init__(self)
+        mid = self.get_centerx()
         self.page = 1
         self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, self.font.basic, 'snow').set_center()
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')

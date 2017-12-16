@@ -17,7 +17,7 @@ class QuitScene(Scene):
 
     def __init__(self):
         Scene.__init__(self)
-        midx, midy = tuple(map(int, (Point(*Screen.size) / 2).tup()))
+        midx, midy = self.get_center()
         Text(self, "Do you really want to leave ?", midx, midy - 50, self.font.basic, 'mediumorchid1').set_center()
         Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
         Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
@@ -40,7 +40,7 @@ class QuitScene(Scene):
 class Intro(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'Welcome To Simple Games', mid, 20, Scene.font.basic, 'blue').set_center()
         text = Text(self, 'TicTacToe', mid, 200, Scene.font.basic, 'wheat4')
         text.set_center()
@@ -85,19 +85,19 @@ class Intro(Quit, Scene):
 class TicTacToe(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'TicTacToe', mid, 20, Scene.font.basic, 'blue').set_center()
         button = Button(self, 'Back', (10,10,100,30), self.push_back)
         self.board = ['','','' ,'','','' ,'','','']
         self.buttons = []
         for i in range(9):
-            x = int((i % 3) * 55 + Screen.size[0] / 2 - (55 + 55 / 2))
+            x = int((i % 3) * 55 + self.get_centerx() - (55 + 55 / 2))
             y = int(i / 3) * 55 + 200
             self.buttons.append(Button(self, '', (x, y, 50, 50), self.push, i))
 
         self.wins_text = Text(self, 'Wins: 0', 100, 100, Scene.font.basic, 'green').set_center()
         self.cats_text = Text(self, 'Cats: 0', mid, 100, Scene.font.basic, 'blue').set_center()
-        x = Screen.size[0] - 150
+        x = self.get_size()[0] - 150
         self.lost_text = Text(self, 'Lost: 0', x, 100, Scene.font.basic, 'red').set_center()
         self.count = 0
         self.win = 0
@@ -189,7 +189,7 @@ class Slot:
 class MasterMind(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'MasterMind', mid, 20, Scene.font.basic, 'green').set_center()
         Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
         Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
@@ -327,7 +327,7 @@ class Dot:
 class FloodIt(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'FloodIt', mid, 20, Scene.font.basic, 'dodgerblue').set_center()
         Button(self, 'Back', (10,10,100,30), self.push_back, None, 'dodgerblue')
         Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'dodgerblue')
@@ -467,7 +467,7 @@ class Card:
 class Memory(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'Memory', mid, 20, Scene.font.basic, 'mediumorchid1').set_center()
         Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
         Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
@@ -550,7 +550,7 @@ class PuzzleBlock:
 class Puzzle(Quit, Scene):
     def __init__(self):
         Scene.__init__(self)
-        mid = Screen.size[0] / 2
+        mid = self.get_centerx()
         Text(self, 'Puzzle', mid, 20, Scene.font.basic, 'aquamarine').set_center()
         Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
         Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')

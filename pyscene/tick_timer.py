@@ -31,10 +31,6 @@ class TickTimer:
         else:
             self.callbacks[key].next_tick = TickTimer.ticks + self.callbacks[key].interval
 
-    # PyScene.Screen use only
-    def _stop(self):
-        self.tick_stop = TickTimer.ticks
-
     def stop(self, key):
         self.callbacks[key].stop = True
 
@@ -42,14 +38,20 @@ class TickTimer:
         self.callbacks[key].stop = False
         self.callbacks[key].next_tick = TickTimer.ticks + self.callbacks[key].interval
 
-    # PyScene.Screen use only
-    def _time_elaspe(self):
+    # PyScene.Scene use only
+    def _stop(self):
+        if self.tick_stop == 0:
+            self.tick_stop = TickTimer.ticks
+
+    # PyScene.Scene use only
+    def _start(self):
         if self.tick_stop > 0:
             elaspe = TickTimer.ticks - self.tick_stop
+            self.tick_stop = 0
             for info in self.callbacks.values():
                 info.next_tick += elaspe
 
-    # PyScene.Screen use only
+    # PyScene.Scene use only
     def _update(self, ticks):
         TickTimer.ticks = ticks
         for key, item in self.callbacks.items():

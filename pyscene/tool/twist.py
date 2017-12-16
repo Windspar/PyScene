@@ -1,6 +1,6 @@
 import pygame
-import tool.gradient as gradient
-from .point import Vector
+from pyscene.tool import gradient
+from pyscene.tool.point import Vector
 
 def color(color):
     if isinstance(color, pygame.Color):
