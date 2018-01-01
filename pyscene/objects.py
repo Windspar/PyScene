@@ -14,11 +14,17 @@ class PySceneImage:
             self.toggle = pygame.transform.scale(self.toggle, size)
             self.disabled = pygame.transform.scale(self.disabled, size)
 
-class PySceneObject:
-    CENTER = 0
-    LEFT = 1
-    TOPLEFT = 2
+class AnchorX:
+    CENTER = 'center'
+    LEFT = 'left'
+    RIGHT = 'right'
 
+class AnchorY:
+    CENTER = 'center'
+    TOP = 'top'
+    BOTTOM = 'bottom'
+
+class PySceneObject:
     def __init__(self, parent, rect, classname, group, allow_bindings):
         self.allow_toggle = False
         self.enable = True
@@ -31,6 +37,8 @@ class PySceneObject:
         if group:
             parent._bind_group(self._group, self._key, self)
 
+        if rect is None:
+            self._rect = pygame.Rect(0,0,1,1)
         if isinstance(rect, pygame.Rect):
             self._rect = rect
         elif len(rect) == 2:
@@ -40,11 +48,74 @@ class PySceneObject:
 
         self._rect_offset()
         self._position = Point(self._rect.topleft)
-        self._anchor = PySceneObject.TOPLEFT
+        self._anchorx = AnchorX.LEFT
+        self._anchory = AnchorY.TOP
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEMOTION, self._key + 'm_motion__', self.event_mousemotion)
             parent.bind_event(pygame.MOUSEBUTTONDOWN, self._key + 'b_down__', self.event_mousebuttondown)
+
+    def _anchor_rect(self, rect):
+        if self._anchorx == AnchorX.CENTER:
+            self._position.x = rect.centerx
+        else:
+            self._position.x = rect.x
+
+        if self._anchory == AnchorY.CENTER:
+            self._position.y = rect.centery
+        else:
+            self._position.y = rect.y
+
+    # private
+    def _anchor_position(self, rect=None):
+        if rect is None:
+            rect = self._rect
+
+        if self._anchorx == AnchorX.CENTER:
+            rect.centerx = int(self._position.x)
+        elif self._anchorx == AnchorX.RIGHT:
+            rect.right = int(self._position.x)
+        else:
+            rect.x = int(self._position.x)
+
+        if self._anchory == AnchorY.CENTER:
+            rect.centery = int(self._position.y)
+        elif self._anchory == AnchorY.BOTTOM:
+            rect.bottom = int(self._position.y)
+        else:
+            rect.y = int(self._position.y)
+
+    # private
+    def _draw_rect(self, rect, position):
+        if position is None:
+            return rect
+        else:
+            nrect = rect.copy()
+            nrect.x -= position[0]
+            nrect.y -= position[1]
+            return nrect
+
+    # private
+    def _rect_offset(self):
+        position = self._parent.get_position()
+        self._rect.x += position[0]
+        self._rect.y += position[1]
+
+    def anchor(self, x, y):
+        self._anchorx = x
+        self._anchory = y
+        self._anchor_position()
+        return self
+
+    def anchorx(self, x):
+        self._anchorx = x
+        self._anchor_position()
+        return self
+
+    def anchory(self, y):
+        self._anchory = y
+        self._anchor_position()
+        return self
 
     def set_focus(self):
         if self._group:
@@ -74,20 +145,6 @@ class PySceneObject:
     def get_key(self):
         return self._key
 
-    def _rect_offset(self):
-        position = self._parent.get_position()
-        self._rect.x += position[0]
-        self._rect.y += position[1]
-
-    def _draw_rect(self, rect, position):
-        if position is None:
-            return rect
-        else:
-            nrect = rect.copy()
-            nrect.x -= position[0]
-            nrect.y -= position[1]
-            return nrect
-
     def set_position(self, x, y=None):
         if y is None:
             if isinstance(x, Point):
@@ -95,34 +152,8 @@ class PySceneObject:
             elif x:
                 self._position = Point(x)
         else:
-            self._position = Point(x, y)
+            self._position = Point((x, y))
 
         self._rect_offset()
         self._anchor_position()
-
-    def set_center(self, x=None, y=None):
-        self._anchor = PySceneObject.CENTER
-        self.set_position(x,y)
         return self
-
-    def set_topleft(self, x=None, y=None):
-        self._anchor = PySceneObject.TOPLEFT
-        self.set_position(x,y)
-        return self
-
-    def set_left(self, x=None, y=None):
-        self._anchor = PySceneObject.LEFT
-        self.set_position(x,y)
-        return self
-
-    def _anchor_position(self, rect=None):
-        if rect is None:
-            rect = self._rect
-
-        if self._anchor == PySceneObject.CENTER:
-            rect.center = self._position.tup_cast()
-        elif self._anchor == PySceneObject.TOPLEFT:
-            rect.topleft = self._position.tup_cast()
-        elif self._anchor == PySceneObject.LEFT:
-            rect.x = int(self._position.x)
-            rect.centery = int(self._position.y)

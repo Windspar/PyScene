@@ -1,6 +1,5 @@
 import pygame
 from pyscene.objects import PySceneObject
-from pyscene.tool.point import Point, Vector
 from pyscene.tool import gradient, twist
 
 # Text are static. Can be transform in Text Click.
@@ -8,24 +7,27 @@ from pyscene.tool import gradient, twist
 # Text can have colorful text
 
 class TextInfo:
-    def __init__(self, color):
+    def __init__(self, color, alpha):
+        self.alpha = alpha
         self.image = None
         self.r_image = None
-        self.color = twist.color(color)
+        self.color = twist.colorx(color)
 
     def set_color(self, color):
-        self.color = twist.color(color)
+        self.color = twist.colorx(color)
 
 # color takes pygame.Color args or pygame.Surface
 class Text(PySceneObject):
-    def __init__(self, parent, text, x, y, font=None, color='white', group=None, callback=None, pydata=None, allow_bindings=True):
-        PySceneObject.__init__(self, parent, (x,y), 'Text', group, allow_bindings)
+    def __init__(self, parent, text, x, y, font=None, color='white', group=None,
+        callback=None, pydata=None, alpha=None, allow_bindings=True):
+
+        PySceneObject.__init__(self, parent, (x, y), 'Text', group, allow_bindings)
         if font is None:
             self._font = pygame.font.Font(None, 24)
         else:
             self._font = font
 
-        self._info = {'base': TextInfo(color)}
+        self._info = {'base': TextInfo(color, alpha)}
         self._text = text
         self._angle = None
         self._r_rect = None
@@ -63,28 +65,31 @@ class Text(PySceneObject):
             if self.callback and self._hover:
                 self.callback(self, self.pydata)
 
-    def set_hilight(self, color):
+    def set_hilight(self, color, alpha=None):
         if self._info.get('hover', False):
             self._info['hover'].set_color(color)
+            self._info['hover'].alpha = alpha
         else:
-            self._info['hover'] = TextInfo(color)
+            self._info['hover'] = TextInfo(color, alpha)
         self._render(self._info['hover'])
 
-    def set_toggle(self, color):
+    def set_toggle(self, color, alpha=None):
         if self._group is None:
             self.allow_toggle = True
 
         if self._info.get('toggle', False):
             self._info['toggle'].set_color(color)
+            self._info['toggle'].alpha = alpha
         else:
-            self._info['toggle'] = TextInfo(color)
+            self._info['toggle'] = TextInfo(color, alpha)
         self._render(self._info['toggle'])
 
-    def set_blink(self, color, time_interval, interval):
+    def set_blink(self, color, time_interval, interval, alpha=None):
         if self._info.get('blink', False):
-            self._info['blink'].color = color
+            self._info['blink'].set_color(color)
+            self._info['blink'].alpha = alpha
         else:
-            self._info['blink'] = TextInfo(color)
+            self._info['blink'] = TextInfo(color, alpha)
 
         self._info['blink'].interval = interval
         self._info['blink'].time_interval = time_interval
@@ -96,11 +101,11 @@ class Text(PySceneObject):
         if info.pydata == 'time':
             self._info['blink'].blink = False
             info.pydata = 'blink'
-            return self._info['blink'].time_interval
+            info.interval = self._info['blink'].time_interval
         else:
             self._info['blink'].blink = True
             info.pydata = 'time'
-            return self._info['blink'].interval
+            info.interval = self._info['blink'].interval
 
     def _render(self, info):
         if isinstance(info.color, pygame.Surface):
@@ -118,6 +123,9 @@ class Text(PySceneObject):
                 self._r_rect.center = self._rect.center
         else:
             info.image = surface
+            if info.alpha:
+                twist.ghost(info.image, info.alpha)
+
             if self._angle is not None:
                 info.r_image = pygame.transform.rotate(info.image, self._angle)
                 self._r_rect = info.r_image.get_rect()
@@ -149,14 +157,16 @@ class Text(PySceneObject):
         self._text = text
         self._do_render()
 
-    def set_color(self, color):
+    def set_color(self, color, alpha=None):
         self._info['base'].set_color(color)
+        self._info['base'].alpha = alpha
         self._render(self._info['base'])
 
     def set_position(self, x, y=None):
         PySceneObject.set_position(self, x, y)
         if self._r_rect:
             self._anchor_position(self_r_rect)
+        return self
 
     def set_angle(self, angle):
         self._angle = angle

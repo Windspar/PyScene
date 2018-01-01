@@ -7,6 +7,7 @@ PyScene
 * Made in linux (Antergos (Arch Linux))
 * Made in python 3.6.
 * pygame
+* numpy
 
 ### TODO ###
 * Some polishing

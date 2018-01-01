@@ -1,135 +1,104 @@
-from pygame import Color
-import operator
+import numpy as np
 import math
 
-class Point:
-    # handles (x, y), tuple, list, Point, Vector
-    def __init__(self, x, y=None):
-        if y is None:
-            if isinstance(x, (Point, Vector)):
-                self.x = x.x
-                self.y = x.y
-            else:
-                self.x = x[0]
-                self.y = x[1]
-        else:
-            self.x = x
-            self.y = y
+class ArrayProperty:
+	def __init__(self, position):
+		self.position = position
 
-    def tup(self):
-        return self.x, self.y
+	def __get__(self, instance, owner):
+		return instance[self.position]
 
-    # handle basic type int, float, str
-    def tup_cast(self, cast=int):
-        return cast(self.x), cast(self.y)
+	def __set__(self, instance, value):
+		instance[self.position] = value
 
-    # handle basic type int, float, str
-    def cast(self, cast=int):
-        self.x = cast(self.x)
-        self.y = cast(self.y)
-        return self
+class Point(np.ndarray):
+	def __new__(cls, x, y=None):
+		if y is None:
+			obj = np.asarray(x).view(cls)
+		else:
+			obj = np.asarray((x, y)).view(cls)
+		return obj
 
-    # overload handle Vector, Point, tuple, list, single number
-    def overload(self, op, point):
-        if isinstance(point, (Point, Vector)):
-            return Point(op(self.x, point.x), op(self.y, point.y))
-        elif isinstance(point, (tuple, list)):
-            return Point(op(self.x, point[0]), op(self.y, point[1]))
-        return Point(op(self.x, point), op(self.y, point))
+	def tup(self, cast=int):
+		self.astype(cast)
+		return tuple(self.tolist())
 
-    def __add__(self, point):
-        return self.overload(operator.add, point)
+	x = ArrayProperty(0)
+	y = ArrayProperty(1)
 
-    def __sub__(self, point):
-        return self.overload(operator.sub, point)
+class Vector(np.ndarray):
+	def __new__(cls, x, y=None, z=None):
+		if y is None:
+			obj = np.asarray(x).view(cls)
+		else:
+			obj = np.asarray((x, y, z)).view(cls)
+		return obj
 
-    def __mul__(self, point):
-        return self.overload(operator.mul, point)
+	def tup(self, cast=int):
+		self.astype(cast)
+		return tuple(self.tolist())
 
-    def __truediv__(self, point):
-        return self.overload(operator.truediv, point)
+	x = ArrayProperty(0)
+	y = ArrayProperty(1)
+	z = ArrayProperty(2)
 
-    def __eq__(self, point):
-        if isinstance(point, (tuple, list)):
-            return self.x == point[0] and self.y == point[1]
-        return self.x == point.x and self.y == point.y
+class RGBA(np.ndarray):
+	def __new__(cls, r, g=None, b=None, a=255):
+		if g is None:
+			if len(r) == 3:
+				r = (*r, a)
+			obj = np.asarray(r).view(cls)
+		else:
+			obj = np.asarray((r, g, b, a)).view(cls)
+		return obj
 
-    def __repr__(self):
-        return "Point({0}, {1}))".format(self.x, self.y)
+	def tup(self, cast=int):
+		self.astype(cast)
+		return tuple(self.tolist())
+
+	r = ArrayProperty(0)
+	g = ArrayProperty(1)
+	b = ArrayProperty(2)
+	a = ArrayProperty(3)
+
+class HSLA(np.ndarray):
+	def __new__(cls, h, s=None, l=None, a=255):
+		if s is None:
+			if len(h) == 3:
+				h = (*h, a)
+			obj = np.asarray(h).view(cls)
+		else:
+			obj = np.asarray((h, s, l, a)).view(cls)
+		return obj
+
+	def tup(self, cast=int):
+		self.astype(cast)
+		return tuple(self.tolist())
+
+	h = ArrayProperty(0)
+	s = ArrayProperty(1)
+	l = ArrayProperty(2)
+	a = ArrayProperty(3)
+
+class HSVA(np.ndarray):
+	def __new__(cls, h, s=None, v=None, a=255):
+		if s is None:
+			if len(h) == 3:
+				h = (*h, a)
+			obj = np.asarray(h).view(cls)
+		else:
+			obj = np.asarray((h, s, v, a)).view(cls)
+		return obj
+
+	def tup(self, cast=int):
+		self.astype(cast)
+		return tuple(self.tolist())
+
+	h = ArrayProperty(0)
+	s = ArrayProperty(1)
+	v = ArrayProperty(2)
+	a = ArrayProperty(3)
 
 def direction(angle):
-    degree = math.radians(angle)
-    return Point(math.cos(degree), math.sin(degree))
-
-class Vector:
-    # handles (x, y, z), tuple, list, pygame.Color, Vector
-    def __init__(self, x, y=None, z=None):
-        if y is None:
-            if isinstance(x, str):
-                color = Color(x)
-                self.x = color.r
-                self.y = color.g
-                self.z = color.b
-            elif isinstance(x, (tuple, list)):
-                self.x, self.y, self.z = x[:3]
-            elif isinstance(x, Color):
-                self.x = x.r
-                self.y = x.g
-                self.z = x.b
-            elif isinstance(x, Vector):
-                self.x = x.x
-                self.y = x.y
-                self.z = x.z
-            else:
-                print(repr(type(x)), repr(type(self)))
-                print('Error', x)
-        else:
-            self.x = x
-            self.y = y
-            self.z = z
-
-    def tup(self):
-        return self.x, self.y, self.z
-
-    # handle basic type int, float, str
-    def tup_cast(self, cast=int):
-        return cast(self.x), cast(self.y), cast(self.z)
-
-    # handle basic type int, float, str
-    def cast(self, cast=int):
-        self.x = cast(self.x)
-        self.y = cast(self.y)
-        self.z = cast(self.z)
-        return self
-
-    # overload handle Vector, Point, tuple, list, single number
-    def overload(self, op, vector):
-        if isinstance(vector, Vector):
-            return Vector(op(self.x, vector.x), op(self.y, vector.y), op(self.z, vector.z))
-        elif isinstance(vector, Point):
-            return Vector(op(self.x, vector.x), op(self.y, vector.y), self.z)
-        elif isinstance(vector, (tuple, list)):
-            if len(vector) == 2:
-                return Vector(op(self.x, vector[0]), op(self.y, vector[1]), self.z)
-            return Vector(op(self.x, vector[0]), op(self.y, vector[1]), op(self.z, vector[2]))
-        return Vector(op(self.x, vector), op(self.y, vector), op(self.z, vector))
-
-    def __add__(self, vector):
-        return self.overload(operator.add, vector)
-
-    def __sub__(self, vector):
-        return self.overload(operator.sub, vector)
-
-    def __mul__(self, vector):
-        return self.overload(operator.mul, vector)
-
-    def __truediv__(self, vector):
-        return self.overload(operator.truediv, vector)
-
-    def __eq__(self, vector):
-        if isinstance(point, (tuple, list)):
-            return self.x == vector[0] and self.y == vector[1] and self.z == vector[2]
-        return self.x == vector.x and self.y == vector.y and self.z == vector.z
-
-    def __repr__(self):
-        return "Vector({0}, {1}, {2})".format(self.x, self.y, self.z)
+	degree = math.radians(angle)
+	return Point(math.cos(degree), math.sin(degree))

@@ -2,47 +2,49 @@ import pygame
 from pyscene.objects import PySceneObject, PySceneImage
 from pyscene.text import Text
 from pyscene.tool import gradient, twist
-from pyscene.tool.point import Vector, Point
+import numpy as np
 
-def simple_button(color, disabled_color):
+def simple_button(color, disabled_color, grad):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color)
 
     return PySceneImage(
-        gradient.vertical(dim),
-        gradient.vertical(bright),
-        gradient.vertical(dark),
-        gradient.vertical(dcolor))
+        grad[0](grad[1], dim, inverse=grad[2]),
+        grad[0](grad[1], bright, inverse=grad[2]),
+        grad[0](grad[1], dark, inverse=grad[2]),
+        grad[0](grad[1], dcolor, inverse=grad[2]))
 
-def box_button(color, disabled_color, alpha, objrect):
+def box_button(color, disabled_color, alpha, objrect, grad):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.5, False, False)
     rect = pygame.Rect(0,0,*objrect.size)
     rect.inflate_ip(-6, -6)
 
-    def overlay(fg, bg, rect, objrect, alpha):
-        if isinstance(bg, Vector):
+    def overlay(fg, bg, rect, objrect, alpha, grad):
+        if isinstance(bg, np.ndarray):
             surface = pygame.Surface(objrect.size)
             surface = surface.convert_alpha()
-            surface.fill((*bg.tup_cast(), alpha))
+            bg[3] = alpha
+            bg = bg.astype(int).tolist()
+            surface.fill(bg)
         else:
-            gsurface = gradient.vertical(bg, objrect.size[0], alpha)
+            gsurface = grad[0](grad[1], bg, objrect.size[0], grad[2])
             surface = pygame.transform.scale(gsurface, objrect.size)
 
-        pygame.draw.rect(surface, fg.tup_cast(), rect, 1)
+        pygame.draw.rect(surface, fg.astype(int).tolist(), rect, 1)
         return surface
 
     return PySceneImage(
-        overlay(dim[0], bright[0], rect, objrect, alpha),
-        overlay(bright[0], bright[0], rect, objrect, alpha),
-        overlay(dark[0], bright[0], rect, objrect, alpha),
-        overlay(dcolor[0], dcolor, rect, objrect, alpha))
+        overlay(dim[0], bright[0], rect, objrect, alpha, grad),
+        overlay(bright[1], bright[0], rect, objrect, alpha, grad),
+        overlay(dark[0], bright[0], rect, objrect, alpha, grad),
+        overlay(dcolor[0], dcolor, rect, objrect, alpha, grad))
 
-def normal_button(color, disabled_color, rect):
+def normal_button(color, disabled_color, rect, grad):
     bright, dim, dark, dcolor = twist.gkey(color, disabled_color, 0.5, False, False)
     brightr, dimr, darkr, dcolorr = twist.gkey(color, disabled_color, 0.5, True, False)
 
-    def overlay(fg, bg, rect):
-        back = gradient.horizontal(bg, rect.w)
-        front = gradient.horizontal(fg, rect.w - 6)
+    def overlay(fg, bg, rect, grad):
+        back = grad[0](grad[1], bg, rect.w, grad[2])
+        front = grad[0](grad[1], fg, rect.w - 6, grad[2])
         back = pygame.transform.scale(back, rect.size)
         w, h = rect.size
         rect = pygame.Rect(3,3,w - 6, h - 6)
@@ -53,10 +55,10 @@ def normal_button(color, disabled_color, rect):
         return back
 
     return PySceneImage(
-        overlay(dim, dimr, rect),
-        overlay(bright, dimr, rect),
-        overlay(dark, dimr, rect),
-        overlay(dcolor, dcolorr, rect))
+        overlay(dim, dimr, rect, grad),
+        overlay(bright, dimr, rect, grad),
+        overlay(dark, dimr, rect, grad),
+        overlay(dcolor, dcolorr, rect, grad))
 
 class Button(PySceneObject):
     def __init__(self, parent, text, rect, callback, pydata=None, image='dodgerblue', group=None, style='simple', allow_bindings=True):
@@ -64,7 +66,7 @@ class Button(PySceneObject):
         self.callback = callback
         self.pydata = pydata
 
-        if isinstance(image, (str, tuple, list, Vector)):
+        if isinstance(image, (str, tuple, list, np.ndarray)):
             self._make_button(image, style)
         else:
             self._image = image
@@ -73,66 +75,75 @@ class Button(PySceneObject):
         drect = self._draw_rect(self._rect, self._parent.get_position())
         if isinstance(text, Text):
             self.text = text
-            self.text.set_center(drect.center)
+            self.text.set_position(drect.center)
+            self.text.anchor('center', 'center')
         else:
             self.text = Text(parent, text, *drect.center, allow_bindings=False)
-            self.text.set_center()
+            self.text.anchor('center', 'center')
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEBUTTONUP, self._key + 'up__', self.event_mousebuttonup)
             parent.bind_blit(self._key + 'blit__', self.blit)
 
     def _make_button(self, color, style):
+        if color[0] in ['v-rgb', 'h-rgb', 'v-hsl', 'v-hsli', 'h-hsl', 'h-hsli']:
+            grad = (
+                [gradient.hsl, gradient.rgb][color[0][2:5] == 'rgb'],
+                color[0][0] == 'h',
+                color[0][-1] == 'i' )
+        else:
+            grad = (gradient.rgb, False, False)
+
         if style == 'simple':
-            if isinstance(color, (str, Vector)):
-                self._image = simple_button(color, 'gray40')
-            elif isinstance(color[0], (str, int, float, Vector)):
+            if isinstance(color, (str, np.ndarray)):
+                self._image = simple_button(color, 'gray40', grad)
+            elif isinstance(color[0], (str, int, float, np.ndarray)):
                 self._image = simple_button(color, 'gray40')
             elif isinstance(color[0], (tuple, list)):
                 if len(color) == 1:
-                    self._image = simple_button(color[0], 'gray40')
+                    self._image = simple_button(color[0], 'gray40', grad)
                 elif len(color) == 2:
-                    self._image = simple_button(color[0], color[1])
+                    self._image = simple_button(color[0], color[1], grad)
                 else:
                     print('Error: color in wrong format', color)
-                    self._image = simple_button('dodgerblue', 'gray40')
+                    self._image = simple_button('dodgerblue', 'gray40', grad)
             else:
                 print('Error: color in wrong format', color)
-                self._image = simple_button('dodgerblue', 'gray40')
+                self._image = simple_button('dodgerblue', 'gray40', grad)
         elif style == 'normal':
-            if isinstance(color, (str, Vector)):
-                self._image = normal_button(color, 'gray40', self._rect)
-            elif isinstance(color[0], (str, int, float, Vector)):
-                self._image = normal_button(color, 'gray40')
+            if isinstance(color, (str, np.ndarray)):
+                self._image = normal_button(color, 'gray40', self._rect, grad)
+            elif isinstance(color[0], (str, int, float, np.ndarray)):
+                self._image = normal_button(color, 'gray40', grad)
             elif isinstance(color[0], (tuple, list)):
                 if len(color) == 1:
-                    self._image = normal_button(color[0], 'gray40', self._rect)
+                    self._image = normal_button(color[0], 'gray40', self._rect, grad)
                 elif len(color) == 2:
-                    self._image = normal_button(color[0], color[1], self._rect)
+                    self._image = normal_button(color[0], color[1], self._rect, grad)
                 else:
                     print('Error: color in wrong format', color)
-                    self._image = normal_button('dodgerblue', 'gray40', self._rect)
+                    self._image = normal_button('dodgerblue', 'gray40', self._rect, grad)
             else:
                 print('Error: color in wrong format', color)
-                self._image = normal_button('dodgerblue', 'gray40', self._rect)
+                self._image = normal_button('dodgerblue', 'gray40', self._rect, grad)
         elif style == 'box':
-            if isinstance(color, (str, Vector)):
-                self._image = box_button(color, 'gray40', 70, self._rect)
-            elif isinstance(color[0], (str, int, float, Vector)):
-                self._image = box_button(color, 'gray40')
+            if isinstance(color, (str, np.ndarray)):
+                self._image = box_button(color, 'gray40', 70, self._rect, grad)
+            elif isinstance(color[0], (str, int, float, np.ndarray)):
+                self._image = box_button(color, 'gray40', grad)
             elif isinstance(color[0], (tuple, list)):
                 if len(color) == 1:
-                    self._image = box_button(color[0], 'gray40', 70, self._rect)
+                    self._image = box_button(color[0], 'gray40', 70, self._rect, grad)
                 elif len(color) == 2:
-                    self._image = box_button(color[0], color[1], 70, self._rect)
+                    self._image = box_button(color[0], color[1], 70, self._rect, grad)
                 elif len(color) == 3:
-                    self._image = box_button(color[0], color[1], color[2], self._rect)
+                    self._image = box_button(color[0], color[1], color[2], self._rect, grad)
                 else:
                     print('Error: color in wrong format', color)
-                    self._image = box_button('dodgerblue', 'gray40', 70, self._rect)
+                    self._image = box_button('dodgerblue', 'gray40', 70, self._rect, grad)
             else:
                 print('Error: color in wrong format', color)
-                self._image = box_button('dodgerblue', 'gray40', 70, self._rect)
+                self._image = box_button('dodgerblue', 'gray40', 70, self._rect, grad)
 
         self._image.scale(self._rect.size)
 

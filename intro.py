@@ -22,7 +22,7 @@ class QuitScenery(Scenery):
         position = center[0] - 150, center[1] - 60
         Scenery.__init__(self, position, (300,120), False, False)
         mid = self.get_center() # PySceneObject need screen position
-        Text(self, 'Confirm Quit', mid[0], 40, self.font.basic, 'mediumorchid').set_center()
+        Text(self, 'Confirm Quit', mid[0], 40, self.font.basic, 'mediumorchid').anchor('center', 'center')
         Button(self, 'Yes', (mid[0] - 100, mid[1] + 20, 80, 34), self.push_confirm, True, 'red')
         Button(self, 'No', (mid[0] + 20, mid[1] + 20, 80, 34), self.push_confirm, False, 'green')
 
@@ -40,22 +40,26 @@ class Intro(Quit):
         #Scene.__init__(self)
         Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'Welcome To PyScene', mid, 20, self.font.basic, 'dodgerblue').set_center()
+        Text(self, 'Welcome To PyScene', mid, 20, self.font.basic, 'dodgerblue').anchor('center', 'center')
         Button(self, "Push Me", (10,70,100,30), self.push)
 
-        Text(self, "Button Styles", 60, 150, self.font.small, 'dodgerblue').set_center()
+        Text(self, "Button Styles", 60, 150, self.font.small, 'dodgerblue').anchor('center', 'center')
         Button(self, "Simple", (10,170,100,30), None, None, 'mistyrose') # simple is default
         Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
         Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
 
         colors = ('blue', 'red', 'wheat4', 'green', 'burlywood')
-        Text(self, 'Colorful Text', mid, 400, self.font.basic, colors).set_center()
-        colors = ('h', 'blue', 'red', 'wheat4', 'green', 'burlywood')
-        Text(self, 'Colorful Text', mid, 440, self.font.basic, colors).set_center()
+        Text(self, 'Colorful Text', mid, 400, self.font.basic, colors).anchor('center', 'center')
+        colors = ('h-hsl', 'blue', 'red', 'wheat4', 'green', 'burlywood')
+        Text(self, 'Colorful Text', mid, 440, self.font.basic, colors).anchor('center', 'center')
+        colors = ('v-rgb', 'blue', 'red', 'wheat4', 'green', 'burlywood')
+        Text(self, 'Colorful Text', mid, 480, self.font.basic, colors).anchor('center', 'center')
+        colors = ('h-rgb', 'blue', 'red', 'wheat4', 'green', 'burlywood')
+        Text(self, 'Colorful Text', mid, 520, self.font.basic, colors).anchor('center', 'center')
         t = Text(self, 'Angle Text', 50, 500, self.font.basic, 'dodgerblue')
         t.set_angle(45)
-        colors = ('h','white', 'snow', 'blue', 'snow', 'white')
-        t.set_blink(colors, 1000, 400)
+        colors = ('h-hsl','white', 'snow', 'blue', 'snow', 'white')
+        t.set_blink(colors, 1200, 600)
 
         self.groups = [
             ("Group Example",
@@ -66,12 +70,12 @@ class Intro(Quit):
             Text(self, "Built In Colors GrayScale", mid, 200, self.font.basic, 'wheat4'))
             ]
         for data, text in self.groups:
-            text.set_center()
+            text.anchor('center', 'center')
             text.set_hilight('burlywood')
             text.set_callback(self.text_callback, data)
 
         tb = Textbox(self, (mid - 125, 300, 250, 40), Scene.font.basic)
-        tb.set_ghost('Enter Name Here', 60)
+        tb.set_ghost('Enter Name Here', 'lightskyblue', 60)
 
     def push(self, button, pydata):
         # let switch scene
@@ -90,7 +94,7 @@ class GroupExample(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
                 # text is auto center
-        self.intro = Text(self, 'Text Group Example', mid, 20, self.font.basic, 'orange').set_center()
+        self.intro = Text(self, 'Text Group Example', mid, 20, self.font.basic, 'orange').anchor('center', 'center')
         self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
         self.texts = [
             Text(self, 'Me First', mid, 200, self.font.small, 'wheat4', 'me_group'),
@@ -99,7 +103,7 @@ class GroupExample(Quit):
         ]
 
         for t in self.texts:
-            t.set_center()
+            t.anchor('center', 'center')
             t.set_hilight('burlywood')
             t.set_toggle('wheat')
 
@@ -118,7 +122,7 @@ class PushMe(Quit):
         #Scene.__init__(self)
         Quit.__init__(self)
         mid = self.get_centerx()
-        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, self.font.basic, 'red').set_center()
+        self.intro = Text(self, 'Whoa! You Push Me.', mid, 20, self.font.basic, 'red').anchor('center', 'center')
         self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
 
     def push(self, button, pydata):
@@ -133,7 +137,7 @@ class Colors(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         self.page = 1
-        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, self.font.basic, 'snow').set_center()
+        self.intro = Text(self, 'Built In Colors ' + str(self.page), mid, 20, self.font.basic, 'snow').anchor('center', 'center')
         self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
         self.back.text.set_color('dodgerblue')
         if grayscale:
@@ -147,7 +151,7 @@ class Colors(Quit):
         for i in range(100):
             y = i % 20 * 25 + 70
             x = int(i / 20) * 150 + 100
-            self.keys_group.append( Text(self, "None", x, y, self.font.small, (0,0,0)).set_center() )
+            self.keys_group.append( Text(self, "None", x, y, self.font.small, (0,0,0)).anchor('center', 'center') )
         self.update_colors()
 
         prev = Button(self, 'Prev', (mid - 150, 560, 100, 30), self.prev_page, None, 'snow')

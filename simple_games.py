@@ -1,26 +1,27 @@
 import pygame
-from pyscene import Scene, Screen, Font
-from pyscene import Button, Text, Textbox
-from pyscene import Point, Vector, gradient
+import pyscene
 from random import choice, shuffle
 
-class Quit:
+class Quit(pyscene.Scene):
+    def __init__(self):
+        pyscene.Scene.__init__(self)
+
     def event(self, event):
         if event.type == pygame.QUIT:
-            Screen.set_scene = 'QuitScene'
+            self.set_scene('QuitScene')
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                Screen.set_scene = 'QuitScene'
+                self.set_scene('QuitScene')
 
-class QuitScene(Scene):
+class QuitScene(pyscene.Scene):
     last_scene = None
 
     def __init__(self):
-        Scene.__init__(self)
+        pyscene.Scene.__init__(self)
         midx, midy = self.get_center()
-        Text(self, "Do you really want to leave ?", midx, midy - 50, self.font.basic, 'mediumorchid1').set_center()
-        Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
-        Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
+        pyscene.Text(self, "Do you really want to leave ?", midx, midy - 50, self.font.basic, 'mediumorchid1').anchor('center', 'center')
+        pyscene.Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
+        pyscene.Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
         self.rect = pygame.Rect(midx - 175, midy - 80, 355, 120)
 
     def push(self, button, pydata):
@@ -31,39 +32,39 @@ class QuitScene(Scene):
 
     def blit(self, surface):
         if QuitScene.last_scene:
-            Screen.scenes[QuitScene.last_scene].screen_blit(surface)
+            self.draw_scene(QuitScene.last_scene, surface)
         else:
             surface.fill((40,0,0))
 
         surface.fill(pygame.Color('mediumorchid4'), self.rect)
 
-class Intro(Quit, Scene):
+class Intro(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'Welcome To Simple Games', mid, 20, Scene.font.basic, 'blue').set_center()
-        text = Text(self, 'TicTacToe', mid, 200, Scene.font.basic, 'wheat4')
-        text.set_center()
+        pyscene.Text(self, 'Welcome To Simple Games', mid, 20, self.font.basic, 'blue').anchor('center', 'center')
+        text = pyscene.Text(self, 'TicTacToe', mid, 150, self.font.basic, 'wheat4')
+        text.anchorx('center')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('TicTacToe', TicTacToe))
 
-        text = Text(self, 'MasterMind', mid, 250, Scene.font.basic, 'wheat4')
-        text.set_center()
+        text = pyscene.Text(self, 'MasterMind', mid, 200, self.font.basic, 'wheat4')
+        text.anchorx('center')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('MasterMind', MasterMind))
 
-        text = Text(self, 'FloodIt', mid, 300, Scene.font.basic, 'wheat4')
-        text.set_center()
+        text = pyscene.Text(self, 'FloodIt', mid, 250, self.font.basic, 'wheat4')
+        text.anchorx('center')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('FloodIt', FloodIt))
 
-        text = Text(self, 'Memory', mid, 350, Scene.font.basic, 'wheat4')
-        text.set_center()
+        text = pyscene.Text(self, 'Memory', mid, 300, self.font.basic, 'wheat4')
+        text.anchorx('center')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('Memory', Memory))
 
-        text = Text(self, 'Puzzle', mid, 400, Scene.font.basic, 'wheat4')
-        text.set_center()
+        text = pyscene.Text(self, 'Puzzle', mid, 350, self.font.basic, 'wheat4')
+        text.anchorx('center')
         text.set_hilight('burlywood')
         text.set_callback(self.start_game, ('Puzzle', Puzzle))
         self.last_scene = None
@@ -71,34 +72,34 @@ class Intro(Quit, Scene):
     def entrance(self):
         QuitScene.last_scene = 'Intro'
         if self.last_scene:
-            del Screen.scenes[self.last_scene]
+            self.del_scene(self.last_scene)
             self.last_scene = None
 
     def start_game(self, text, pydata):
         self.last_scene = pydata[0]
-        Screen.scenes[pydata[0]] = pydata[1]()
-        Screen.set_scene = pydata[0]
+        self.add_scene(pydata[1](), pydata[0])
+        self.set_scene(pydata[0])
 
     def blit(self, surface):
         surface.fill((0,0,30))
 
-class TicTacToe(Quit, Scene):
+class TicTacToe(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'TicTacToe', mid, 20, Scene.font.basic, 'blue').set_center()
-        button = Button(self, 'Back', (10,10,100,30), self.push_back)
+        pyscene.Text(self, 'TicTacToe', mid, 20, self.font.basic, 'blue').anchor('center', 'center')
+        button = pyscene.Button(self, 'Back', (10,10,100,30), self.push_back)
         self.board = ['','','' ,'','','' ,'','','']
         self.buttons = []
         for i in range(9):
             x = int((i % 3) * 55 + self.get_centerx() - (55 + 55 / 2))
             y = int(i / 3) * 55 + 200
-            self.buttons.append(Button(self, '', (x, y, 50, 50), self.push, i))
+            self.buttons.append(pyscene.Button(self, '', (x, y, 50, 50), self.push, i))
 
-        self.wins_text = Text(self, 'Wins: 0', 100, 100, Scene.font.basic, 'green').set_center()
-        self.cats_text = Text(self, 'Cats: 0', mid, 100, Scene.font.basic, 'blue').set_center()
+        self.wins_text = pyscene.Text(self, 'Wins: 0', 100, 100, self.font.basic, 'green').anchor('center', 'center')
+        self.cats_text = pyscene.Text(self, 'Cats: 0', mid, 100, self.font.basic, 'blue').anchor('center', 'center')
         x = self.get_size()[0] - 150
-        self.lost_text = Text(self, 'Lost: 0', x, 100, Scene.font.basic, 'red').set_center()
+        self.lost_text = pyscene.Text(self, 'Lost: 0', x, 100, self.font.basic, 'red').anchor('center', 'center')
         self.count = 0
         self.win = 0
         self.lost = 0
@@ -176,7 +177,7 @@ class TicTacToe(Quit, Scene):
             button.text.set_text("")
 
     def push_back(self, button, pydata):
-        Screen.set_scene = 'Intro'
+        self.set_scene('Intro')
 
     def blit(self, surface):
         surface.fill((0,0,40))
@@ -186,25 +187,25 @@ class Slot:
         self.rect = pygame.Rect(rect)
         self.color = color
 
-class MasterMind(Quit, Scene):
+class MasterMind(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'MasterMind', mid, 20, Scene.font.basic, 'green').set_center()
-        Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
-        Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
-        Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, None, 'green')
+        pyscene.Text(self, 'MasterMind', mid, 20, self.font.basic, 'green').anchor('center', 'center')
+        pyscene.Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
+        pyscene.Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
+        pyscene.Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, None, 'green')
         self.colors = ('yellow', 'red', 'blue', 'white', 'wheat4', 'orange', 'green', 'purple')
         self.colors = tuple(map(pygame.Color, self.colors))
         self.picker = [pygame.Rect(150, i * 30 + 180, 40, 20) for i in range(8)]
-        self.outcome = Text(self, "", mid, 550, Scene.font.basic, 'green')
+        self.outcome = pyscene.Text(self, "", mid, 550, self.font.basic, 'green')
         self.push_newgame(None, None)
 
     def entrance(self):
         QuitScene.last_scene = 'MasterMind'
 
     def push_back(self, button, pydata):
-        Screen.set_scene = 'Intro'
+        self.set_scene('Intro')
 
     def push_newgame(self, button, pydata):
         self.board = []
@@ -324,25 +325,25 @@ class Dot:
 
         return match
 
-class FloodIt(Quit, Scene):
+class FloodIt(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'FloodIt', mid, 20, Scene.font.basic, 'dodgerblue').set_center()
-        Button(self, 'Back', (10,10,100,30), self.push_back, None, 'dodgerblue')
-        Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'dodgerblue')
+        pyscene.Text(self, 'FloodIt', mid, 10, self.font.basic, 'dodgerblue').anchorx('center')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'dodgerblue')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'dodgerblue')
         self.colors = tuple(map(pygame.Color,
             ['dodgerblue', 'gold', 'firebrick1', 'darkslateblue',
              'forestgreen', 'darkorange', 'mediumorchid'] ))
 
-        self.turn_text = Text(self, 'Turn: 0', mid, 560, Scene.font.basic, 'wheat4').set_center()
+        self.turn_text = pyscene.Text(self, 'Turn: 0', mid, 560, self.font.basic, 'wheat4').anchor('center', 'center')
         self.push_newgame(None, None)
 
     def entrance(self):
         QuitScene.last_scene = 'FloodIt'
 
     def push_back(self, button, pydata):
-        Screen.set_scene = 'Intro'
+        self.set_scene('Intro')
 
     def push_newgame(self, button, pydata):
         self.board = []
@@ -417,7 +418,7 @@ class Card:
         elif self.item in [4,5,6,7,8]:
             colors_list = ['dodgerblue','indianred','mediumseagreen','mediumpurple','khaki']
             fg = pygame.Color(colors_list[self.item % 5])
-            bg = (Vector(fg) * 0.6).tup_cast()
+            bg = (pyscene.Vector(fg[:3]) * 0.6).tup(int)
             colors = [fg, bg]
             for i in range(3):
                 for j in range(3):
@@ -426,16 +427,16 @@ class Card:
         elif self.item in [9,10,11,12]:
             colors_list = ['darkolivegreen1','chocolate','darkgoldenrod','coral']
             fg = pygame.Color(colors_list[self.item % 4])
-            bg = Vector(fg) * 0.5
-            grad = gradient.horizontal((fg, bg), 30)
-            letter = Scene.font.basic.render('ABCD'[self.item % 4], 1, (255,255,255))
+            bg = pyscene.Vector(fg[:3]) * 0.5
+            grad = pyscene.gradient.rgb(True, (fg, bg), 30)
+            letter = pyscene.Scene.font.basic.render('ABCD'[self.item % 4], 1, (255,255,255))
             arect = letter.get_rect()
             arect.center = rect.center
-            surface.blit(gradient.apply_surface(letter, grad), arect)
+            surface.blit(pyscene.gradient.apply_surface(letter, grad), arect)
         elif self.item in [13,14,15,16,17]:
             colors_list = ['cornflowerblue','bisque3','limegreen','coral','honeydew']
             left = pygame.Color(colors_list[self.item % 5])
-            right = (Vector(left) * 0.6).tup_cast()
+            right = (pyscene.Vector(left[:3]) * 0.6).tup(int)
             surface.fill(left, pygame.Rect(0,0,15,15))
             surface.fill(right, pygame.Rect(15,0,15,15))
             surface.fill(right, pygame.Rect(0,15,15,15))
@@ -443,7 +444,7 @@ class Card:
         elif self.item in [18,19,20]:
             colors_list = ['deepskyblue1','firebrick1','limegreen']
             foreground = pygame.Color(colors_list[self.item % 3])
-            background = (Vector(foreground) * 0.6).tup_cast()
+            background = (pyscene.Vector(foreground) * 0.6).tup(int)
             pygame.draw.circle(surface, foreground, (11, 12), 10)
             pygame.draw.circle(surface, background, (19, 18), 10)
         elif self.item in [21,22,23]:
@@ -464,14 +465,14 @@ class Card:
 
         return surface
 
-class Memory(Quit, Scene):
+class Memory(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'Memory', mid, 20, Scene.font.basic, 'mediumorchid1').set_center()
-        Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
-        Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
-        self.move_text = Text(self, 'Moves: 0', mid, 100, Scene.font.basic, 'mediumorchid1').set_center()
+        pyscene.Text(self, 'Memory', mid, 10, self.font.basic, 'mediumorchid1').anchorx('center')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
+        self.move_text = pyscene.Text(self, 'Moves: 0', mid, 100, self.font.basic, 'mediumorchid1').anchor('center', 'center')
 
         self.push_newgame(None, None)
 
@@ -495,7 +496,7 @@ class Memory(Quit, Scene):
         QuitScene.last_scene = 'Memory'
 
     def push_back(self, button, pydata):
-        Screen.set_scene = 'Intro'
+        self.set_scene('Intro')
 
     def blit(self, surface):
         surface.fill((40,0,40))
@@ -542,18 +543,18 @@ class PuzzleBlock:
         self.number = number
         self.image = pygame.Surface((65, 65))
         self.image.fill((pygame.Color('aquamarine')))
-        surface = Scene.font.basic.render(str(number + 1), 1, (0,0,0))
+        surface = pyscene.Scene.font.basic.render(str(number + 1), 1, (0,0,0))
         rect = surface.get_rect()
         rect.center = self.image.get_rect().center
         self.image.blit(surface, rect)
 
-class Puzzle(Quit, Scene):
+class Puzzle(Quit):
     def __init__(self):
-        Scene.__init__(self)
+        Quit.__init__(self)
         mid = self.get_centerx()
-        Text(self, 'Puzzle', mid, 20, Scene.font.basic, 'aquamarine').set_center()
-        Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
-        Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')
+        pyscene.Text(self, 'Puzzle', mid, 10, self.font.basic, 'aquamarine').anchorx('center')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')
         self.board = [PuzzleBlock(i) for i in range(15)] + [None]
         self.push_newgame(None, None)
 
@@ -564,7 +565,7 @@ class Puzzle(Quit, Scene):
         shuffle(self.board)
 
     def push_back(self, button, pydata):
-        Screen.set_scene = 'Intro'
+        self.set_scene('Intro')
 
     def blit(self, surface):
         surface.fill(pygame.Color('aquamarine4'))
@@ -600,15 +601,15 @@ class Puzzle(Quit, Scene):
                         setboard(pos - 1)
 
 def main():
+    Screen = pyscene.Screen
     Screen.center()
     Screen.open('Simple Games', (800, 600))
-    Scene.font.basic = pygame.font.Font(None, 36)
+    pyscene.Scene.font.basic = pygame.font.Font(None, 36)
 
     Screen.scenes['Intro'] = Intro()
     Screen.scenes['QuitScene'] = QuitScene()
 
     Screen.loop('Intro', 30)
-    pygame.quit()
 
 if __name__ == '__main__':
     main()
