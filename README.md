@@ -11,7 +11,7 @@ PyScene
 
 ### TODO ###
 * Some polishing
-* simple_games Memory make better images.
+* simple_games -> Memory make better images.
 
 #### simple_games.py ####
 * TicTacToe
