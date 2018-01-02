@@ -61,18 +61,39 @@ class Carrot:
         self.position = [x, int(y - (h / 2)), 2, h]
 
 class Textbox(PySceneObject):
-    def __init__(self, parent, rect, font=None, color='white', callback=None, image='steelblue', style='simple', allow_bindings=True):
+    def __init__(self, parent,
+            rect = (0,0,200,40),
+            font=None,
+            color='white',
+            callback=None,
+            image='steelblue',
+            style='simple',
+            allow_bindings=True,
+            anchorx = 'left',
+            anchory = 'top',
+            ghost_kw = {'text':"Textbox", 'color':'white', 'alpha':60},
+            text_kw = {}):
         PySceneObject.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
+        self._anchor_position()
         x = self._rect.x + 6
         y = self._rect.centery
-        self.text = Text(parent, "", (x, y), font, color, allow_bindings=False)
-        self.text.anchor('left', 'center')
+        self.text = Text(parent, "", (x, y), font, color,
+            anchory = 'center',
+            allow_bindings=False,
+            **text_kw)
         self._buffer = []
         self.callback = callback
         self._carrot = Carrot(self.text._font, x, y, color)
         x = self._rect.centerx
-        self.ghost_text = Text(parent, "Textbox", (x, y), font, color, alpha=60, allow_bindings=False)
-        self.ghost_text.anchor('center', 'center')
+        if ghost_kw.get('font', False) is False:
+            ghost_kw['font'] = font
+
+        self.ghost_text = Text(parent,
+            pos = (x, y),
+            allow_bindings = False,
+            anchorx = 'center',
+            anchory = 'center',
+            **ghost_kw)
 
         if isinstance(image, (str, tuple, list)):
             self.make_button(image, style)

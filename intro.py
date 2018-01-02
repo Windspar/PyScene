@@ -23,8 +23,8 @@ class QuitScenery(Scenery):
         Scenery.__init__(self, position, (300,120), False, False)
         mid = self.get_center() # PySceneObject need screen position
         Text(self, 'Confirm Quit', (mid[0], 40), self.font.basic, 'mediumorchid').anchor('center', 'center')
-        Button(self, 'Yes', (mid[0] - 100, mid[1] + 20, 80, 34), self.push_confirm, True, 'red')
-        Button(self, 'No', (mid[0] + 20, mid[1] + 20, 80, 34), self.push_confirm, False, 'green')
+        Button(self, 'Yes', (mid[0] - 100, mid[1] + 20, 80, 34), (self.push_confirm, True), 'red')
+        Button(self, 'No', (mid[0] + 20, mid[1] + 20, 80, 34), (self.push_confirm, False), 'green')
 
     def push_confirm(self, button, pydata):
         if pydata:
@@ -44,9 +44,9 @@ class Intro(Quit):
         Button(self, "Push Me", (10,70,100,30), self.push)
 
         Text(self, "Button Styles", (60, 150), self.font.small, 'dodgerblue').anchor('center', 'center')
-        Button(self, "Simple", (10,170,100,30), None, None, 'mistyrose') # simple is default
-        Button(self, "Normal", (10,210,100,30), None, None, 'darkseagreen', None, 'normal')
-        Button(self, "Box", (10,250,100,30), None, None, 'forestgreen', None, 'box')
+        Button(self, "Simple", (10,170,100,30), None, 'mistyrose') # simple is default
+        Button(self, "Normal", (10,210,100,30), None, 'darkseagreen', None, 'normal')
+        Button(self, "Box", (10,250,100,30), None, 'forestgreen', None, 'box')
 
         colors = ('blue', 'red', 'wheat4', 'green', 'burlywood')
         Text(self, 'Colorful Text', (mid, 400), self.font.basic, colors).anchor('center', 'center')
@@ -95,7 +95,7 @@ class GroupExample(Quit):
         mid = self.get_centerx()
                 # text is auto center
         self.intro = Text(self, 'Text Group Example', (mid, 20), self.font.basic, 'orange').anchor('center', 'center')
-        self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, None, 'orange')
+        self.back = Button(self, 'Back', (10, 70, 100, 30), self.back_push, 'orange')
         self.texts = [
             Text(self, 'Me First', (mid, 200), self.font.small, 'wheat4', None, 'me_group'),
             Text(self, 'Pick Me', (mid, 250), self.font.small, 'wheat4', None, 'me_group'),
@@ -123,7 +123,7 @@ class PushMe(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         self.intro = Text(self, 'Whoa! You Push Me.', (mid, 20), self.font.basic, 'red').anchor('center', 'center')
-        self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, None, 'red')
+        self.push_me = Button(self, "Push Me", (10,70,100,30), self.push, 'red')
 
     def push(self, button, pydata):
         self.set_scene("Intro")
@@ -138,7 +138,7 @@ class Colors(Quit):
         mid = self.get_centerx()
         self.page = 1
         self.intro = Text(self, 'Built In Colors ' + str(self.page), (mid, 10), self.font.basic, 'snow', anchorx='center')
-        self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, None, 'snow')
+        self.back = Button(self, 'Back', (10, 20, 100, 30), self.push_back, 'snow')
         self.back.text.set_color('dodgerblue')
         if grayscale:
             self.keys = [key for key in list(pygame.color.THECOLORS.keys())
@@ -154,9 +154,9 @@ class Colors(Quit):
             self.keys_group.append( Text(self, "None", (x, y), self.font.small, (0,0,0)).anchor('center', 'center') )
         self.update_colors()
 
-        prev = Button(self, 'Prev', (mid - 150, 560, 100, 30), self.prev_page, None, 'snow')
+        prev = Button(self, 'Prev', (mid - 150, 560, 100, 30), self.prev_page, 'snow')
         prev.text.set_color('dodgerblue')
-        nextp = Button(self, 'Next', (mid + 50, 560, 100, 30), self.next_page, None, 'snow')
+        nextp = Button(self, 'Next', (mid + 50, 560, 100, 30), self.next_page, 'snow')
         nextp.text.set_color('dodgerblue')
 
         self.max_page = int(len(self.keys) / 100) + 1

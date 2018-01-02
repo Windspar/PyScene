@@ -32,8 +32,8 @@ class Text(PySceneObject):
                 toggle=None,      # (color, alpha=None)
                 blink=None,       # (color, time_interval, interval, alpha=None)
                 angle=None,
-                anchorx='center',
-                anchory='center'):
+                anchorx='left',
+                anchory='top'):
 
         PySceneObject.__init__(self, parent, pos, 'Text', group, allow_bindings, anchorx, anchory)
         if font is None:

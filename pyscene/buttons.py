@@ -61,10 +61,25 @@ def normal_button(color, disabled_color, rect, grad):
         overlay(dcolor, dcolorr, rect, grad))
 
 class Button(PySceneObject):
-    def __init__(self, parent, text, rect, callback, pydata=None, image='dodgerblue', group=None, style='simple', allow_bindings=True):
-        PySceneObject.__init__(self, parent, rect, 'Button', group, allow_bindings)
-        self.callback = callback
-        self.pydata = pydata
+    def __init__(self, parent,
+            text = 'Button',
+            rect =(0,0,100,34),
+            callback = None,        # (callback, pydata)
+            image='dodgerblue',
+            group=None,
+            style='simple',
+            allow_bindings=True,
+            text_kw = {'color':'white'},
+            anchorx='left',
+            anchory='top'):
+
+        PySceneObject.__init__(self, parent, rect, 'Button', group, allow_bindings, anchorx, anchory)
+        if isinstance(callback, (tuple, list)):
+            self.callback = callback[0]
+            self.pydata = callback[1]
+        else:
+            self.callback = callback
+            self.pydata = None
 
         if isinstance(image, (str, tuple, list, np.ndarray)):
             self._make_button(image, style)
@@ -78,8 +93,11 @@ class Button(PySceneObject):
             self.text.set_position(drect.center)
             self.text.anchor('center', 'center')
         else:
-            self.text = Text(parent, text, drect.center, allow_bindings=False)
-            self.text.anchor('center', 'center')
+            self.text = Text(parent, text, drect.center,
+            **text_kw,
+            allow_bindings = False,
+            anchorx = 'center',
+            anchory = 'center')
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEBUTTONUP, self._key + 'up__', self.event_mousebuttonup)
@@ -170,14 +188,21 @@ class Button(PySceneObject):
                     self.callback(self, self.pydata)
 
 class ToggleButton(Button):
-    def __init__(self, parent, text, rect, callback, pydata=None, image='blue', group=None, style='simple', allow_bindings=True):
-        Button.__init__(self, parent, text, rect, callback, pydata, image, group, style, allow_bindings)
+    def __init__(self, *args, **kwargs):
+        Button.__init__(self, *args, **kwargs)
 
         if self._group is None:
             self.allow_toggle = True
 
+        if len(args) > 7:
+            allow_bindings = args[7]
+        elif kwargs.get('allow_bindings', False):
+            allow_bindings = kwargs['allow_bindings']
+        else:
+            allow_bindings = True
+
         if allow_bindings:
-            parent.unbind_event(pygame.MOUSEBUTTONUP, self._key + 'up__')
+            args[0].unbind_event(pygame.MOUSEBUTTONUP, self._key + 'up__')
 
     def event_mousebuttondown(self, event, key, pydata):
         PySceneObject.event_mousebuttondown(self, event, key, pydata)

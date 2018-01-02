@@ -20,8 +20,8 @@ class QuitScene(pyscene.Scene):
         pyscene.Scene.__init__(self)
         midx, midy = self.get_center()
         pyscene.Text(self, "Do you really want to leave ?", (midx, midy - 50), self.font.basic, 'mediumorchid1').anchor('center', 'center')
-        pyscene.Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
-        pyscene.Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
+        pyscene.Button(self, 'Yes', (midx - 150, midy, 100, 30), (self.push, True), 'red')
+        pyscene.Button(self, 'No', (midx + 50, midy, 100, 30), (self.push, False), 'green')
         self.rect = pygame.Rect(midx - 175, midy - 80, 355, 120)
 
     def push(self, button, pydata):
@@ -96,7 +96,7 @@ class TicTacToe(Quit):
         for i in range(9):
             x = int((i % 3) * 55 + self.get_centerx() - (55 + 55 / 2))
             y = int(i / 3) * 55 + 200
-            self.buttons.append(pyscene.Button(self, '', (x, y, 50, 50), self.push, i))
+            self.buttons.append(pyscene.Button(self, '', (x, y, 50, 50), (self.push, i)))
 
         self.wins_text = pyscene.Text(self, 'Wins: 0', (100, 100), self.font.basic, 'green').anchor('center', 'center')
         self.cats_text = pyscene.Text(self, 'Cats: 0', (mid, 100), self.font.basic, 'blue').anchor('center', 'center')
@@ -194,9 +194,9 @@ class MasterMind(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         pyscene.Text(self, 'MasterMind', (mid, 20), self.font.basic, 'green').anchor('center', 'center')
-        pyscene.Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
-        pyscene.Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
-        pyscene.Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, None, 'green')
+        pyscene.Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, 'green')
+        pyscene.Button(self, 'Back', (10, 10, 100, 30), self.push_back, 'green')
+        pyscene.Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, 'green')
         self.colors = ('yellow', 'red', 'blue', 'white', 'wheat4', 'orange', 'green', 'purple')
         self.colors = tuple(map(pygame.Color, self.colors))
         self.picker = [pygame.Rect(150, i * 30 + 180, 40, 20) for i in range(8)]
@@ -332,8 +332,8 @@ class FloodIt(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         pyscene.Text(self, 'FloodIt', (mid, 10), self.font.basic, 'dodgerblue').anchorx('center')
-        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'dodgerblue')
-        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'dodgerblue')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, 'dodgerblue')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, 'dodgerblue')
         self.colors = tuple(map(pygame.Color,
             ['dodgerblue', 'gold', 'firebrick1', 'darkslateblue',
              'forestgreen', 'darkorange', 'mediumorchid'] ))
@@ -472,8 +472,8 @@ class Memory(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         pyscene.Text(self, 'Memory', (mid, 10), self.font.basic, 'mediumorchid1').anchorx('center')
-        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
-        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, 'mediumorchid1')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, 'mediumorchid1')
         self.move_text = pyscene.Text(self, 'Moves: 0', (mid, 100), self.font.basic, 'mediumorchid1').anchor('center', 'center')
 
         self.push_newgame(None, None)
@@ -555,8 +555,8 @@ class Puzzle(Quit):
         Quit.__init__(self)
         mid = self.get_centerx()
         pyscene.Text(self, 'Puzzle', (mid, 10), self.font.basic, 'aquamarine').anchorx('center')
-        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
-        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')
+        pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, 'aquamarine')
+        pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, 'aquamarine')
         self.board = [PuzzleBlock(i) for i in range(15)] + [None]
         self.push_newgame(None, None)
 
