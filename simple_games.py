@@ -19,7 +19,7 @@ class QuitScene(pyscene.Scene):
     def __init__(self):
         pyscene.Scene.__init__(self)
         midx, midy = self.get_center()
-        pyscene.Text(self, "Do you really want to leave ?", midx, midy - 50, self.font.basic, 'mediumorchid1').anchor('center', 'center')
+        pyscene.Text(self, "Do you really want to leave ?", (midx, midy - 50), self.font.basic, 'mediumorchid1').anchor('center', 'center')
         pyscene.Button(self, 'Yes', (midx - 150, midy, 100, 30), self.push, True, 'red')
         pyscene.Button(self, 'No', (midx + 50, midy, 100, 30), self.push, False, 'green')
         self.rect = pygame.Rect(midx - 175, midy - 80, 355, 120)
@@ -42,31 +42,33 @@ class Intro(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'Welcome To Simple Games', mid, 20, self.font.basic, 'blue').anchor('center', 'center')
-        text = pyscene.Text(self, 'TicTacToe', mid, 150, self.font.basic, 'wheat4')
-        text.anchorx('center')
-        text.set_hilight('burlywood')
-        text.set_callback(self.start_game, ('TicTacToe', TicTacToe))
+        pyscene.Text(self, 'Welcome To Simple Games', (mid, 10), self.font.basic, 'blue',
+            anchorx = 'center')
 
-        text = pyscene.Text(self, 'MasterMind', mid, 200, self.font.basic, 'wheat4')
-        text.anchorx('center')
-        text.set_hilight('burlywood')
-        text.set_callback(self.start_game, ('MasterMind', MasterMind))
+        pyscene.Text(self, 'TicTacToe', (mid, 150), self.font.basic, 'wheat4',
+            anchorx = 'center',
+            hilight = 'burlywood',
+            callback = (self.start_game, ('TicTacToe', TicTacToe)))
 
-        text = pyscene.Text(self, 'FloodIt', mid, 250, self.font.basic, 'wheat4')
-        text.anchorx('center')
-        text.set_hilight('burlywood')
-        text.set_callback(self.start_game, ('FloodIt', FloodIt))
+        pyscene.Text(self, 'MasterMind', (mid, 200), self.font.basic, 'wheat4',
+            anchorx = 'center',
+            hilight = 'burlywood',
+            callback = (self.start_game, ('MasterMind', MasterMind)))
 
-        text = pyscene.Text(self, 'Memory', mid, 300, self.font.basic, 'wheat4')
-        text.anchorx('center')
-        text.set_hilight('burlywood')
-        text.set_callback(self.start_game, ('Memory', Memory))
+        pyscene.Text(self, 'FloodIt', (mid, 250), self.font.basic, 'wheat4',
+            anchorx = 'center',
+            hilight = 'burlywood',
+            callback = (self.start_game, ('FloodIt', FloodIt)))
 
-        text = pyscene.Text(self, 'Puzzle', mid, 350, self.font.basic, 'wheat4')
-        text.anchorx('center')
-        text.set_hilight('burlywood')
-        text.set_callback(self.start_game, ('Puzzle', Puzzle))
+        pyscene.Text(self, 'Memory', (mid, 300), self.font.basic, 'wheat4',
+            anchorx = 'center',
+            hilight = 'burlywood',
+            callback = (self.start_game, ('Memory', Memory)))
+
+        pyscene.Text(self, 'Puzzle', (mid, 350), self.font.basic, 'wheat4',
+            anchorx = 'center',
+            hilight = 'burlywood',
+            callback = (self.start_game, ('Puzzle', Puzzle)))
         self.last_scene = None
 
     def entrance(self):
@@ -87,7 +89,7 @@ class TicTacToe(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'TicTacToe', mid, 20, self.font.basic, 'blue').anchor('center', 'center')
+        pyscene.Text(self, 'TicTacToe', (mid, 10), self.font.basic, 'blue', anchorx = 'center')
         button = pyscene.Button(self, 'Back', (10,10,100,30), self.push_back)
         self.board = ['','','' ,'','','' ,'','','']
         self.buttons = []
@@ -96,10 +98,10 @@ class TicTacToe(Quit):
             y = int(i / 3) * 55 + 200
             self.buttons.append(pyscene.Button(self, '', (x, y, 50, 50), self.push, i))
 
-        self.wins_text = pyscene.Text(self, 'Wins: 0', 100, 100, self.font.basic, 'green').anchor('center', 'center')
-        self.cats_text = pyscene.Text(self, 'Cats: 0', mid, 100, self.font.basic, 'blue').anchor('center', 'center')
+        self.wins_text = pyscene.Text(self, 'Wins: 0', (100, 100), self.font.basic, 'green').anchor('center', 'center')
+        self.cats_text = pyscene.Text(self, 'Cats: 0', (mid, 100), self.font.basic, 'blue').anchor('center', 'center')
         x = self.get_size()[0] - 150
-        self.lost_text = pyscene.Text(self, 'Lost: 0', x, 100, self.font.basic, 'red').anchor('center', 'center')
+        self.lost_text = pyscene.Text(self, 'Lost: 0', (x, 100), self.font.basic, 'red').anchor('center', 'center')
         self.count = 0
         self.win = 0
         self.lost = 0
@@ -191,14 +193,14 @@ class MasterMind(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'MasterMind', mid, 20, self.font.basic, 'green').anchor('center', 'center')
+        pyscene.Text(self, 'MasterMind', (mid, 20), self.font.basic, 'green').anchor('center', 'center')
         pyscene.Button(self, 'Check', (mid - 50, 475, 100, 32), self.check, None, 'green')
         pyscene.Button(self, 'Back', (10, 10, 100, 30), self.push_back, None, 'green')
         pyscene.Button(self, 'New Game', (10, 50, 100, 30), self.push_newgame, None, 'green')
         self.colors = ('yellow', 'red', 'blue', 'white', 'wheat4', 'orange', 'green', 'purple')
         self.colors = tuple(map(pygame.Color, self.colors))
         self.picker = [pygame.Rect(150, i * 30 + 180, 40, 20) for i in range(8)]
-        self.outcome = pyscene.Text(self, "", mid, 550, self.font.basic, 'green')
+        self.outcome = pyscene.Text(self, "", (mid, 550), self.font.basic, 'green')
         self.push_newgame(None, None)
 
     def entrance(self):
@@ -329,14 +331,14 @@ class FloodIt(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'FloodIt', mid, 10, self.font.basic, 'dodgerblue').anchorx('center')
+        pyscene.Text(self, 'FloodIt', (mid, 10), self.font.basic, 'dodgerblue').anchorx('center')
         pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'dodgerblue')
         pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'dodgerblue')
         self.colors = tuple(map(pygame.Color,
             ['dodgerblue', 'gold', 'firebrick1', 'darkslateblue',
              'forestgreen', 'darkorange', 'mediumorchid'] ))
 
-        self.turn_text = pyscene.Text(self, 'Turn: 0', mid, 560, self.font.basic, 'wheat4').anchor('center', 'center')
+        self.turn_text = pyscene.Text(self, 'Turn: 0', (mid, 560), self.font.basic, 'wheat4').anchor('center', 'center')
         self.push_newgame(None, None)
 
     def entrance(self):
@@ -469,10 +471,10 @@ class Memory(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'Memory', mid, 10, self.font.basic, 'mediumorchid1').anchorx('center')
+        pyscene.Text(self, 'Memory', (mid, 10), self.font.basic, 'mediumorchid1').anchorx('center')
         pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'mediumorchid1')
         pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'mediumorchid1')
-        self.move_text = pyscene.Text(self, 'Moves: 0', mid, 100, self.font.basic, 'mediumorchid1').anchor('center', 'center')
+        self.move_text = pyscene.Text(self, 'Moves: 0', (mid, 100), self.font.basic, 'mediumorchid1').anchor('center', 'center')
 
         self.push_newgame(None, None)
 
@@ -552,7 +554,7 @@ class Puzzle(Quit):
     def __init__(self):
         Quit.__init__(self)
         mid = self.get_centerx()
-        pyscene.Text(self, 'Puzzle', mid, 10, self.font.basic, 'aquamarine').anchorx('center')
+        pyscene.Text(self, 'Puzzle', (mid, 10), self.font.basic, 'aquamarine').anchorx('center')
         pyscene.Button(self, 'Back', (10,10,100,30), self.push_back, None, 'aquamarine')
         pyscene.Button(self, 'New Game', (10,50,100,30), self.push_newgame, None, 'aquamarine')
         self.board = [PuzzleBlock(i) for i in range(15)] + [None]

@@ -65,13 +65,13 @@ class Textbox(PySceneObject):
         PySceneObject.__init__(self, parent, rect, 'Textbox', None, allow_bindings)
         x = self._rect.x + 6
         y = self._rect.centery
-        self.text = Text(parent, "", x, y, font, color, allow_bindings=False)
+        self.text = Text(parent, "", (x, y), font, color, allow_bindings=False)
         self.text.anchor('left', 'center')
         self._buffer = []
         self.callback = callback
         self._carrot = Carrot(self.text._font, x, y, color)
         x = self._rect.centerx
-        self.ghost_text = Text(parent, "Textbox", x, y, font, color, alpha=60, allow_bindings=False)
+        self.ghost_text = Text(parent, "Textbox", (x, y), font, color, alpha=60, allow_bindings=False)
         self.ghost_text.anchor('center', 'center')
 
         if isinstance(image, (str, tuple, list)):

@@ -25,7 +25,7 @@ class AnchorY:
     BOTTOM = 'bottom'
 
 class PySceneObject:
-    def __init__(self, parent, rect, classname, group, allow_bindings):
+    def __init__(self, parent, rect, classname, group, allow_bindings, anchorx='left', anchory='top'):
         self.allow_toggle = False
         self.enable = True
         self._parent = parent
@@ -48,8 +48,8 @@ class PySceneObject:
 
         self._rect_offset()
         self._position = Point(self._rect.topleft)
-        self._anchorx = AnchorX.LEFT
-        self._anchory = AnchorY.TOP
+        self._anchorx = anchorx
+        self._anchory = anchory
 
         if allow_bindings:
             parent.bind_event(pygame.MOUSEMOTION, self._key + 'm_motion__', self.event_mousemotion)

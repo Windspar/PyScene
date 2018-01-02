@@ -78,7 +78,7 @@ class Button(PySceneObject):
             self.text.set_position(drect.center)
             self.text.anchor('center', 'center')
         else:
-            self.text = Text(parent, text, *drect.center, allow_bindings=False)
+            self.text = Text(parent, text, drect.center, allow_bindings=False)
             self.text.anchor('center', 'center')
 
         if allow_bindings:
