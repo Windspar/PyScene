@@ -1,66 +1,6 @@
-import os
 import pygame
-import pyscene.tick_timer as tick_timer
-
-class Screen:
-    set_scene = None
-    running = False
-    scenes = {}
-
-    @classmethod
-    def add_scene(cls, scene, name=None):
-        if name is None:
-            name = type(scene).__name__
-        cls.scenes[name] = scene
-
-    @staticmethod
-    def center():
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-    @classmethod
-    def resize(cls, size, flags=0, depth=0):
-        # this area needs more work
-        cls.rect.size = size
-        cls.surface = pygame.display.set_mode(cls.rect.size, flags, depth)
-
-    @classmethod
-    def open(cls, caption, size, flags=0, depth=0):
-        pygame.init()
-        cls.rect = pygame.Rect(0,0,*size)
-        cls.current_scene = Scene()
-        pygame.display.set_caption(caption)
-        cls.surface = pygame.display.set_mode(cls.rect.size, flags, depth)
-        cls.clock = pygame.time.Clock()
-        cls.running = False
-
-    @classmethod
-    def close(cls):
-        cls.running = False
-
-    @classmethod
-    def loop(cls, start_scene=None, fps=60):
-        cls.fps = fps
-        cls.running = True
-        cls.set_scene = start_scene
-
-        while cls.running:
-             # run all events first before changing scene
-            for event in pygame.event.get():
-                cls.current_scene.screen_event(event)
-
-            # change scene
-            if cls.set_scene:
-                cls.current_scene.screen_drop()
-                cls.current_scene = cls.scenes[cls.set_scene]
-                cls.current_scene.screen_entrance()
-                cls.set_scene = None
-
-            # blit current scene
-            cls.current_scene.screen_blit(cls.surface)
-            pygame.display.flip()
-            cls.clock.tick(Screen.fps)
-
-        pygame.quit()
+from .screen import Screen
+from . import tick_timer
 
 class Font:
     pass
@@ -80,15 +20,24 @@ class Scene:
     # instance of Screen incase it not imported
     screen = Screen
 
-    def __init__(self):
-        # Scene PySceneObjects use
-        self._bindings = Bindings()
+    def __init__(self, rect=None):
+        # Scene use
+        self._scene_bindings = Bindings()
+        if rect is None:
+            self._scene_surface_rect = Screen.rect
+        else:
+            self._scene_surface_rect = rect
+
+        self._scene_rect = pygame.Rect(0,0,*self._scene_surface_rect.size)
+        self._scene_surface = pygame.Surface(self._scene_surface_rect.size)
+        self._scene_surface = self._scene_surface.convert_alpha()
+        self._scene_surface.fill((0,0,0,0))
         # builtins
         self.font = Scene.font
         self.timer = tick_timer.TickTimer(pygame.time.get_ticks())
 
     # When it switch to scene
-    def entrance(self):
+    def entrance(self, *args):
         pass
     # When scene is being switch
     def drop(self):
@@ -99,25 +48,25 @@ class Scene:
     # pygame events go here
     def event(self, event):
         pass
-    # Items that only upate but not on pause
+    # Items that always need to be updated. Even when inactive
     def update(self):
         pass
 
     def _bind_group(self, group, key, data):
-        self._bindings.group[group] = self._bindings.group.get(group, {'focus': None})
-        self._bindings.group[group][key] = data
+        self._scene_bindings.group[group] = self._scene_bindings.group.get(group, {'focus': None})
+        self._scene_bindings.group[group][key] = data
 
     def _get_pid(self):
-        self._bindings.pid += 1
-        return self._bindings.pid
+        self._scene_bindings.pid += 1
+        return self._scene_bindings.pid
 
     # does all setup
-    def screen_entrance(self):
-        if self._bindings.events.get(pygame.MOUSEMOTION, False):
-            for key, (callback, pydata) in self._bindings.events[pygame.MOUSEMOTION].items():
+    def screen_entrance(self, *args):
+        if self._scene_bindings.events.get(pygame.MOUSEMOTION, False):
+            for key, (callback, pydata) in self._scene_bindings.events[pygame.MOUSEMOTION].items():
                 callback(None, key, pydata)
 
-        self.entrance()
+        self.entrance(args)
         self.timer._start()
 
     def screen_drop(self):
@@ -127,7 +76,7 @@ class Scene:
     # handles all events
     def screen_event(self, event):
         allow_event = True
-        for scenery in self._bindings.scenery.values():
+        for scenery in self._scene_bindings.scenery.values():
             if scenery.show:
                 scenery.screen_event(event)
                 if scenery._hover or scenery.allow_event is False:
@@ -135,8 +84,8 @@ class Scene:
 
         if allow_event:
             self.event(event)
-            if self._bindings.events.get(event.type, None):
-                for key, (callback, pydata) in self._bindings.events[event.type].items():
+            if self._scene_bindings.events.get(event.type, None):
+                for key, (callback, pydata) in self._scene_bindings.events[event.type].items():
                     callback(event, key, pydata)
 
     def screen_update(self):
@@ -147,7 +96,7 @@ class Scene:
     def screen_blit(self, surface, update=True):
         allow_update = True
         draw_scenery = []
-        for key, scenery in self._bindings.scenery.items():
+        for key, scenery in self._scene_bindings.scenery.items():
             if scenery.show:
                 allow_update = False
                 draw_scenery.append(key)
@@ -158,46 +107,30 @@ class Scene:
         else:
             self.timer._stop()
 
-        self.blit(surface)
-        for key, callback in self._bindings.blits.items():
-            callback(surface)
+        self.blit(self._scene_surface)
+        for key, callback in self._scene_bindings.blits.items():
+            callback(self._scene_surface)
 
         for key in draw_scenery:
-            self._bindings.scenery[key].screen_blit(surface)
+            self._scene_bindings.scenery[key].screen_blit(self._scene_surface)
+
+        surface.blit(self._scene_surface, self._scene_surface_rect)
 
     def bind_event(self, event, key, callback, pydata=None):
-        self._bindings.events[event] = self._bindings.events.get(event, {})
-        self._bindings.events[event][key] = callback, pydata
+        self._scene_bindings.events[event] = self._scene_bindings.events.get(event, {})
+        self._scene_bindings.events[event][key] = callback, pydata
 
     def unbind_event(self, event, key):
-        del self._bindings.events[event][key]
+        del self._scene_bindings.events[event][key]
 
     def bind_blit(self, key, callback):
-        self._bindings.blits[key] = callback
+        self._scene_bindings.blits[key] = callback
 
     def unbind_blit(self, key):
-        del self._bindings.blits[key]
+        del self._scene_bindings.blits[key]
 
     def draw_scene(self, scene_name, surface):
         Scene.screen.scenes[scene_name].screen_blit(surface)
-
-    def get_position(self):
-        return Scene.screen.rect.topleft
-
-    def get_size(self):
-        return Scene.screen.rect.size
-
-    def get_rect(self):
-        return Scene.screen.rect.copy()
-
-    def get_center(self):
-        return Scene.screen.rect.center
-
-    def get_centerx(self):
-        return Scene.screen.rect.centerx
-
-    def get_centery(self):
-        return Scene.screen.rect.centery
 
     def add_scene(self, scene, name=None):
         Scene.screen.add_scene(scene, name)
@@ -205,8 +138,8 @@ class Scene:
     def close_screen(self):
         Scene.screen.running = False
 
-    def set_scene(self, scene_name):
-        Scene.screen.set_scene = scene_name
+    def set_scene(self, scene_name, *args):
+        Scene.screen.set_scene(scene_name, args)
 
     def del_scene(self, scene_name):
         del Scene.screen.scenes[scene_name]
@@ -214,70 +147,24 @@ class Scene:
     def add_scenery(self, scenery, scenery_name=None):
         if scenery_name is None:
             scenery_name = type(scenery).__name__
-        self._bindings.scenery[scenery_name] = scenery
+        self._scene_bindings.scenery[scenery_name] = scenery
 
     def show_scenery(self, scenery_name, show=True):
-        self._bindings.scenery[scenery_name].show = show
+        self._scene_bindings.scenery[scenery_name].show = show
 
     def del_scenery(self, scenery_name):
-        del self._bindings.scenery[scenery_name]
+        del self._scene_bindings.scenery[scenery_name]
 
-# under construction
-# Scene within a Scene
-class Scenery(Scene):
-    def __init__(self, position, size, show, allow_event):
-        Scene.__init__(self)
-        self._screen_rect = pygame.Rect(*position, *size)
-        self._surface = pygame.Surface(size)
-        self._rect = pygame.Rect(0, 0, *size)
-        self._hover = False
-        self.allow_event = allow_event
-        self.show = show
+    @property
+    def screen_position(self):
+        return self._scene_surface_rect.topleft
 
-    def screen_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            self._hover = self._screen_rect.collidepoint(event.pos)
+    #readonly
+    @property
+    def _rect(self):
+        return self._scene_rect
 
-        if self._hover:
-            self.event(event)
-            if self._bindings.events.get(event.type, None):
-                for key, (callback, pydata) in self._bindings.events[event.type].items():
-                    callback(event, key, pydata)
-
-    def screen_blit(self, surface, update=True):
-        if update:
-            self.screen_update()
-
-        self.blit(self._surface)
-        for callback in self._bindings.blits.values():
-            callback(self._surface, self._screen_rect.topleft)
-
-        surface.blit(self._surface, self._screen_rect)
-
-    def get_position(self):
-        return self._screen_rect.topleft
-
-    def get_size(self, screen=False):
-        if screen:
-            return self._screen_rect.size
-        return self._rect.size
-
-    def get_rect(self, screen=False):
-        if screen:
-            return self._screen_rect.copy()
-        return self._rect.copy()
-
-    def get_center(self, screen=False):
-        if screen:
-            return self._screen_rect.center
-        return self._rect.center
-
-    def get_centerx(self, screen=False):
-        if screen:
-            return self._screen_rect.centerx
-        return self._rect.centerx
-
-    def get_centery(self, screen=False):
-        if screen:
-            return self._screen_rect.centery
-        return self._rect.centery
+    #readonly
+    @property
+    def _screen_rect(self):
+        return Scene.screen.rect

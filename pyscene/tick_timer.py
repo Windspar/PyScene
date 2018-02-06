@@ -59,6 +59,8 @@ class TickTimer:
                 if ticks > item.next_tick:
                     item.callback(item)
                     item.next_tick += item.interval
+                    if ticks > item.next_tick:
+                        item.next_tick = ticks
 
     def pop(self, key):
         self.callbacks.pop(key)
