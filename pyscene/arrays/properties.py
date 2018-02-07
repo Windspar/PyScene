@@ -51,5 +51,5 @@ class ArrayTypeDoubleProperty:
         return self.array1.__get__(instance, owner), self.array2.__get__(instance, owner)
 
     def __set__(self, instance, value):
-        self.array2.__set__(instance, value)
-        self.array2.__set__(instance, value)
+        self.array1.__set__(instance, value[0])
+        self.array2.__set__(instance, value[1])
