@@ -6,20 +6,43 @@ class Rect(np.ndarray):
     def __new__(cls, x, y, w, h):
         return np.asarray((x, y, w, h)).view(cls)
 
-    def clamp(self, rect):
-        pass
+    def clamp(self, rect, in_place=False):
+        clamp_x, clamp_y = self[:2]
+
+        if self[2] >= rect[2]:
+            clamp_x = rect[0] + rect[2] / 2 - self[2] / 2
+        elif self[0] < rect[0]:
+            clamp_x = rect[0]
+        elif self[0] + self[2]:
+            clamp_x = rect[0] + rect[2] - self[2]
+
+        if self[3] >= rect[3]:
+            clamp_y = rect[1] + rect[3] / 2 - self[3] / 2
+        elif self[1] < rect[1]:
+            clamp_y = rect[1]
+        elif self[1] + self[3]:
+            clamp_y = rect[1] + rect[3] - self[3]
+
+        if in_place:
+            self[0] = clamp_x
+            self[1] = clamp_y
+        else:
+            return Rect(clamp_x, clamp_y, self[2], self[3])
 
     def clamp_ip(self, rect):
-        pass
+        self.clamp(rect, True)
 
     def collidepoint(self, x, y):
-        pass
+        return self[0] < x < self[0] + self[2] and self[1] < y < self[1] + self[3]
 
     def colliderect(self, rect):
-        pass
+        return (((self[0] > rect[0] and self[0] < rect[2] + rect[0]) or
+                (rect[0] > self[0] and rect[0] < self[2] + self[0])) and
+                ((self[1] > rect[1] and self[1] < rect[3] + rect[1]) or
+                (rect[1] > self[1] and rect[1] < self[3] + self[1])))
 
     def move(self, x, y):
-        return Rect(self.x + x, self.y + y, w, h)
+        return Rect(self[0] + x, self[1] + y, self[2], self[3])
 
     def move_ip(self, x, y):
         self[0] += x
@@ -35,7 +58,8 @@ class Rect(np.ndarray):
 
     def tup(self, cast=None):
         if cast:
-            self.astype(cast)
+            data = self.astype(cast)
+            return tuple(data.tolist())
         return tuple(self.tolist())
 
     @property
