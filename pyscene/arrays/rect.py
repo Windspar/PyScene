@@ -41,6 +41,30 @@ class Rect(np.ndarray):
                 ((self[1] > rect[1] and self[1] < rect[3] + rect[1]) or
                 (rect[1] > self[1] and rect[1] < self[3] + self[1])))
 
+    def copy(self):
+        return Rect(*self[:4])
+
+    def inflate(self, x, y):
+        rect = self.copy()
+        if x != 0:
+            rect.x -= (x - np.fmod(x, 2)) / 2
+            rect.w += x
+
+        if y != 0:
+            rect.y -= (y - np.fmod(y, 2)) / 2
+            rect.h += y
+
+        return rect
+
+    def inflate_ip(self, x, y):
+        if x != 0:
+            self[0] -= (x - np.fmod(x, 2)) / 2
+            self[2] += x
+
+        if y != 0:
+            self[1] -= (y - np.fmod(y, 2)) / 2
+            self[3] += y
+
     def move(self, x, y):
         return Rect(self[0] + x, self[1] + y, self[2], self[3])
 
