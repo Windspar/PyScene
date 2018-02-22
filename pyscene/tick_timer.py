@@ -31,6 +31,9 @@ class TickTimer:
         else:
             self.callbacks[key].next_tick = TickTimer.ticks + self.callbacks[key].interval
 
+    def pop(self, key):
+        self.callbacks.pop(key)
+
     def stop(self, key):
         self.callbacks[key].stop = True
 
@@ -61,6 +64,3 @@ class TickTimer:
                     item.next_tick += item.interval
                     if ticks > item.next_tick:
                         item.next_tick = ticks
-
-    def pop(self, key):
-        self.callbacks.pop(key)

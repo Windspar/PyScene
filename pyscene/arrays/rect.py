@@ -1,10 +1,20 @@
 from pygame import Rect as GameRect
 from . import properties as prop
+from .dimension import Dimension
+from .point import Point
 import numpy as np
 
 class Rect(np.ndarray):
     def __new__(cls, x, y, w, h):
         return np.asarray((x, y, w, h)).view(cls)
+
+    @classmethod
+    def by_dimension(cls, dim):
+        return Rect(0, 0, dim.w, dim.h)
+
+    @classmethod
+    def by_size(cls, w, h):
+        return Rect(0, 0, w, h)
 
     def clamp(self, rect, in_place=False):
         clamp_x, clamp_y = self[:2]
@@ -98,27 +108,27 @@ class Rect(np.ndarray):
     top = prop.ArrayProperty(1)
     width = prop.ArrayProperty(2)
     height = prop.ArrayProperty(3)
-    #size = prop.ArrayDoubleProperty(2,3)
-    topleft = prop.ArrayDoubleProperty(0,1)
+    dimension = prop.ArrayDoubleProperty(2, 3, Dimension)
+    topleft = prop.ArrayDoubleProperty(0, 1, Point)
     topright = prop.ArrayTypeDoubleProperty(
         prop.ArrayCombineProperty(0, 2),
-        prop.ArrayProperty(1))
+        prop.ArrayProperty(1),
+        Point)
 
     bottomleft = prop.ArrayTypeDoubleProperty(
         prop.ArrayProperty(0),
-        prop.ArrayCombineProperty(1, 3))
+        prop.ArrayCombineProperty(1, 3),
+        Point)
 
     bottomright = prop.ArrayTypeDoubleProperty(
         prop.ArrayCombineProperty(0, 2),
-        prop.ArrayCombineProperty(1, 3))
+        prop.ArrayCombineProperty(1, 3),
+        Point)
 
     center = prop.ArrayTypeDoubleProperty(
         prop.ArrayCombineCenterProperty(0,2),
-        prop.ArrayCombineCenterProperty(1,3))
+        prop.ArrayCombineCenterProperty(1,3),
+        Point)
 
     centerx = prop.ArrayCombineCenterProperty(0,2)
     centery = prop.ArrayCombineCenterProperty(1,3)
-
-if __name__ == '__main__':
-    r = Rect(50, 50, 50, 50)
-    print(r, r.center)

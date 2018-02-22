@@ -9,11 +9,14 @@ class ArrayProperty:
         instance[self.position] = value
 
 class ArrayDoubleProperty:
-    def __init__(self, position1, position2):
+    def __init__(self, position1, position2, return_type=None):
         self.position1 = position1
         self.position2 = position2
+        self.return_type = return_type
 
     def __get__(self, instance, owner):
+        if self.return_type:
+            return self.return_type(instance[self.position1], instance[self.position2])
         return instance[self.position1], instance[self.position2]
 
     def __set__(self, instance, value):
@@ -43,11 +46,14 @@ class ArrayCombineCenterProperty:
         instance[self.position] = value - instance[self.combine] * 0.5
 
 class ArrayTypeDoubleProperty:
-    def __init__(self, array1, array2):
+    def __init__(self, array1, array2, return_type=None):
         self.array1 = array1
         self.array2 = array2
+        self.return_type = return_type
 
     def __get__(self, instance, owner):
+        if self.return_type:
+            return self.return_type(self.array1.__get__(instance, owner), self.array2.__get__(instance, owner))
         return self.array1.__get__(instance, owner), self.array2.__get__(instance, owner)
 
     def __set__(self, instance, value):
